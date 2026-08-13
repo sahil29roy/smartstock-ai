@@ -1,0 +1,1 @@
+CREATE TABLE _connection_test (id SERIAL PRIMARY KEY);
