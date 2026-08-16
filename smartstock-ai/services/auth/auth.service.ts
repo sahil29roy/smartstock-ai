@@ -1,9 +1,6 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { comparePassword } from "@/lib/password";
+import { signToken, verifyToken as jwtVerifyToken } from "@/lib/jwt";
 import { getUserByEmail, User } from "./auth.repository";
-
-const JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret_change_me";
-const TOKEN_EXPIRY = "1d"; // 24 hours
 
 export interface JWTPayload {
   userId: string;
@@ -28,7 +25,7 @@ export async function login(email: string, passwordPlain: string): Promise<AuthS
     return null;
   }
 
-  const isMatch = await bcrypt.compare(passwordPlain, user.password_hash);
+  const isMatch = await comparePassword(passwordPlain, user.password_hash);
   if (!isMatch) {
     return null;
   }
@@ -40,7 +37,7 @@ export async function login(email: string, passwordPlain: string): Promise<AuthS
     role: user.role,
   };
 
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
+  const token = signToken(payload);
 
   const { password_hash, ...userWithoutPassword } = user;
 
@@ -54,10 +51,5 @@ export async function login(email: string, passwordPlain: string): Promise<AuthS
  * Verifies a JWT token and returns its decoded payload, or null if invalid.
  */
 export function verifyToken(token: string): JWTPayload | null {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
-    return decoded;
-  } catch (error) {
-    return null;
-  }
+  return jwtVerifyToken<JWTPayload>(token);
 }
