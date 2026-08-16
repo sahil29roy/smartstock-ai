@@ -1,3 +1,7 @@
+-- Migration: 001_create_users
+-- Created: 2026-08-16
+-- Description: Create users table and user_role enum
+
 CREATE TYPE user_role AS ENUM ('ADMIN', 'SALES', 'WAREHOUSE', 'ACCOUNTS');
 
 CREATE TABLE users (
