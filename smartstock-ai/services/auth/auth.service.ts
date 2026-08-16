@@ -1,26 +1,13 @@
 import { comparePassword } from "@/lib/password";
 import { signToken, verifyToken as jwtVerifyToken } from "@/lib/jwt";
-import { getUserByEmail, User } from "./auth.repository";
+import { getUserByEmail } from "./auth.repository";
+import { JWTPayload, AuthSession } from "@/types/auth/auth.types";
 
-export interface JWTPayload {
-  userId: string;
-  name: string;
-  email: string;
-  role: string;
-}
 
-export interface AuthSession {
-  user: Omit<User, "password_hash">;
-  token: string;
-}
 
-/**
- * Authenticates a user by email and password.
- * Returns the user details (without password hash) and a signed JWT token, or null if invalid.
- */
 export async function login(email: string, passwordPlain: string): Promise<AuthSession | null> {
   const user = await getUserByEmail(email);
-  
+
   if (!user || !user.is_active) {
     return null;
   }
@@ -47,9 +34,7 @@ export async function login(email: string, passwordPlain: string): Promise<AuthS
   };
 }
 
-/**
- * Verifies a JWT token and returns its decoded payload, or null if invalid.
- */
+
 export function verifyToken(token: string): JWTPayload | null {
   return jwtVerifyToken<JWTPayload>(token);
 }
