@@ -44,6 +44,7 @@ export type PaymentStatus = 'PENDING' | 'COMPLETED' | 'FAILED';
 export interface Payment {
   id: string;
   sale_id: string;
+  account_id: string;
   amount: number;
   payment_date: Date;
   payment_method: PaymentMethod;
@@ -55,6 +56,7 @@ export interface Payment {
 
 export interface CreatePaymentInput {
   sale_id: string;
+  account_id?: string;
   amount: number;
   payment_method: PaymentMethod;
   status?: PaymentStatus;
