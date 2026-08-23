@@ -1,4 +1,5 @@
 import { pool } from "@/lib/db";
+import { PoolClient } from "pg";
 import {
   Inventory,
   CreateInventoryInput,
@@ -7,7 +8,7 @@ import {
   CreateStockMovementInput
 } from "@/types/inventory/inventory.types";
 
-export async function withTransaction<T>(fn: (client: any) => Promise<T>): Promise<T> {
+export async function withTransaction<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -22,7 +23,7 @@ export async function withTransaction<T>(fn: (client: any) => Promise<T>): Promi
   }
 }
 
-export async function getInventoryByProductId(productId: string, client?: any): Promise<Inventory | null> {
+export async function getInventoryByProductId(productId: string, client?: PoolClient): Promise<Inventory | null> {
   const sql = `
     SELECT id, product_id, quantity, reserved_quantity, location, created_at, updated_at
     FROM inventory
@@ -33,7 +34,7 @@ export async function getInventoryByProductId(productId: string, client?: any): 
   return result.rows[0] || null;
 }
 
-export async function getInventoryByProductIdForUpdate(productId: string, client: any): Promise<Inventory | null> {
+export async function getInventoryByProductIdForUpdate(productId: string, client: PoolClient): Promise<Inventory | null> {
   const sql = `
     SELECT id, product_id, quantity, reserved_quantity, location, created_at, updated_at
     FROM inventory
@@ -44,7 +45,7 @@ export async function getInventoryByProductIdForUpdate(productId: string, client
   return result.rows[0] || null;
 }
 
-export async function createInventory(input: CreateInventoryInput, client?: any): Promise<Inventory> {
+export async function createInventory(input: CreateInventoryInput, client?: PoolClient): Promise<Inventory> {
   const sql = `
     INSERT INTO inventory (product_id, quantity, reserved_quantity, location)
     VALUES ($1, $2, $3, $4)
@@ -64,7 +65,7 @@ export async function createInventory(input: CreateInventoryInput, client?: any)
 export async function updateInventory(
   productId: string,
   input: UpdateInventoryInput,
-  client?: any
+  client?: PoolClient
 ): Promise<Inventory | null> {
   const setClauses: string[] = [];
   const params: any[] = [productId];
@@ -98,7 +99,7 @@ export async function updateInventory(
   return result.rows[0] || null;
 }
 
-export async function createStockMovement(input: CreateStockMovementInput, client?: any): Promise<StockMovement> {
+export async function createStockMovement(input: CreateStockMovementInput, client?: PoolClient): Promise<StockMovement> {
   const sql = `
     INSERT INTO stock_movements (product_id, quantity, type, reason, created_by)
     VALUES ($1, $2, $3, $4, $5)
