@@ -195,15 +195,16 @@ export async function getSaleItems(saleId: string, client?: PoolClient): Promise
 
 // === Payments Repository ===
 
-export async function createPayment(input: CreatePaymentInput, client?: PoolClient): Promise<Payment> {
+export async function createPayment(input: CreatePaymentInput & { account_id: string }, client?: PoolClient): Promise<Payment> {
   const sql = `
-    INSERT INTO payments (sale_id, amount, payment_method, status, created_by)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING id, sale_id, amount, payment_date, payment_method, status, created_by, created_at, updated_at
+    INSERT INTO payments (sale_id, account_id, amount, payment_method, status, created_by)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, sale_id, account_id, amount, payment_date, payment_method, status, created_by, created_at, updated_at
   `;
   const executor = client || pool;
   const params = [
     input.sale_id,
+    input.account_id,
     input.amount,
     input.payment_method,
     input.status || "COMPLETED",
@@ -211,6 +212,38 @@ export async function createPayment(input: CreatePaymentInput, client?: PoolClie
   ];
   const result = await executor.query(sql, params);
   const row = result.rows[0];
+  return {
+    ...row,
+    amount: parseFloat(row.amount)
+  };
+}
+
+export async function getPaymentById(id: string, client?: PoolClient): Promise<Payment | null> {
+  const sql = `
+    SELECT id, sale_id, account_id, amount, payment_date, payment_method, status, created_by, created_at, updated_at
+    FROM payments
+    WHERE id = $1
+  `;
+  const executor = client || pool;
+  const result = await executor.query(sql, [id]);
+  const row = result.rows[0];
+  if (!row) return null;
+  return {
+    ...row,
+    amount: parseFloat(row.amount)
+  };
+}
+
+export async function getPaymentByIdForUpdate(id: string, client: PoolClient): Promise<Payment | null> {
+  const sql = `
+    SELECT id, sale_id, account_id, amount, payment_date, payment_method, status, created_by, created_at, updated_at
+    FROM payments
+    WHERE id = $1
+    FOR UPDATE
+  `;
+  const result = await client.query(sql, [id]);
+  const row = result.rows[0];
+  if (!row) return null;
   return {
     ...row,
     amount: parseFloat(row.amount)
@@ -226,7 +259,7 @@ export async function updatePaymentStatus(
     UPDATE payments
     SET status = $2, updated_at = NOW()
     WHERE id = $1
-    RETURNING id, sale_id, amount, payment_date, payment_method, status, created_by, created_at, updated_at
+    RETURNING id, sale_id, account_id, amount, payment_date, payment_method, status, created_by, created_at, updated_at
   `;
   const executor = client || pool;
   const result = await executor.query(sql, [id, input.status]);
@@ -240,7 +273,7 @@ export async function updatePaymentStatus(
 
 export async function getPaymentsBySaleId(saleId: string, client?: PoolClient): Promise<Payment[]> {
   const sql = `
-    SELECT id, sale_id, amount, payment_date, payment_method, status, created_by, created_at, updated_at
+    SELECT id, sale_id, account_id, amount, payment_date, payment_method, status, created_by, created_at, updated_at
     FROM payments
     WHERE sale_id = $1
     ORDER BY payment_date DESC

@@ -22,11 +22,12 @@ export const POST = withAuth(
         );
       }
 
-      const { amount, payment_method, status } = parseResult.data;
+      const { account_id, amount, payment_method, status } = parseResult.data;
       const createdBy = request.user?.id;
 
       const payment = await salesService.createPayment({
         sale_id: saleId,
+        account_id,
         amount,
         payment_method,
         status,
