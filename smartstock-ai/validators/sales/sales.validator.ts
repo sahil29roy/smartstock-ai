@@ -21,6 +21,7 @@ export const createSaleItemSchema = z.object({
 
 export const createPaymentSchema = z.object({
   sale_id: z.string().uuid("Sale ID must be a valid UUID"),
+  account_id: z.string().uuid("Account ID must be a valid UUID").optional(),
   amount: z.number().positive("Payment amount must be positive"),
   payment_method: z.enum(["CASH", "CARD", "BANK_TRANSFER", "UPI"]),
   status: z.enum(["PENDING", "COMPLETED", "FAILED"]).optional(),
