@@ -1,5 +1,6 @@
 import * as repo from "./sales.repository";
 import * as inventoryRepo from "../inventory/inventory.repository";
+import * as accountsRepo from "../accounts/accounts.repository";
 import { pool } from "@/lib/db";
 import {
   Sale,
@@ -187,9 +188,35 @@ export async function createPayment(input: CreatePaymentInput): Promise<Payment>
       throw new Error("Sale not found.");
     }
 
-    const payment = await repo.createPayment(input, client);
+    // Resolve account_id if not provided
+    let accountId = input.account_id;
+    if (!accountId) {
+      if (input.payment_method === "CASH") {
+        accountId = "c1111111-1111-1111-1111-111111111111"; // Cash Account
+      } else {
+        accountId = "c2222222-2222-2222-2222-222222222222"; // Bank Account
+      }
+    }
+
+    // Lock and verify account exists
+    const account = await accountsRepo.getAccountByIdForUpdate(accountId, client);
+    if (!account) {
+      throw new Error(`Account with ID ${accountId} not found.`);
+    }
+
+    // Create payment with resolved account_id
+    const payment = await repo.createPayment(
+      {
+        ...input,
+        account_id: accountId
+      },
+      client
+    );
 
     if (payment.status === "COMPLETED") {
+      // Update account balance
+      await accountsRepo.updateAccountBalance(accountId, payment.amount, client);
+
       // Fetch all completed payments to update Sale status
       const payments = await repo.getPaymentsBySaleId(input.sale_id, client);
       const totalPaid = payments
