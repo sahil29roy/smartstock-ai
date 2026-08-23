@@ -126,7 +126,7 @@ export async function updateSale(
   };
 }
 
-export async function getSales(filters?: { customerId?: string; status?: SaleStatus }): Promise<Sale[]> {
+export async function getSales(filters?: { customerId?: string; status?: SaleStatus }, client?: PoolClient): Promise<Sale[]> {
   let sql = `
     SELECT id, customer_id, total_amount, status, created_by, created_at, updated_at
     FROM sales
@@ -148,7 +148,8 @@ export async function getSales(filters?: { customerId?: string; status?: SaleSta
   }
   sql += " ORDER BY created_at DESC";
 
-  const result = await pool.query(sql, params);
+  const executor = client || pool;
+  const result = await executor.query(sql, params);
   return result.rows.map(row => ({
     ...row,
     total_amount: parseFloat(row.total_amount)
@@ -332,7 +333,7 @@ export async function updateChallan(
   return result.rows[0] || null;
 }
 
-export async function getChallans(filters?: { saleId?: string; status?: ChallanStatus }): Promise<Challan[]> {
+export async function getChallans(filters?: { saleId?: string; status?: ChallanStatus }, client?: PoolClient): Promise<Challan[]> {
   let sql = `
     SELECT id, challan_number, sale_id, status, dispatch_date, carrier_details, created_by, created_at, updated_at
     FROM challans
@@ -354,7 +355,8 @@ export async function getChallans(filters?: { saleId?: string; status?: ChallanS
   }
   sql += " ORDER BY created_at DESC";
 
-  const result = await pool.query(sql, params);
+  const executor = client || pool;
+  const result = await executor.query(sql, params);
   return result.rows;
 }
 
