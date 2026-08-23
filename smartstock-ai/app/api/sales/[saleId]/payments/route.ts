@@ -4,7 +4,7 @@ import { withRoles } from "@/middleware/authorize";
 import * as salesService from "@/services/sales/sales.service";
 import { createPaymentSchema } from "@/validators/sales/sales.validator";
 
-// Schema for payment request body (without sale_id, which comes from the route param)
+
 const paymentBodySchema = createPaymentSchema.omit({ sale_id: true, created_by: true });
 
 export const POST = withAuth(
