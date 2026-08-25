@@ -104,3 +104,18 @@ export interface DashboardSummaryResult {
   lowStockAlerts: LowStockDetailItem[];
   recentActivity: RecentActivityFeedItem[];
 }
+
+// Customer Report Data Models
+export interface CustomerReportItem {
+  customerId: string;
+  customerName: string;
+  email: string;
+  phone: string | null;
+  totalSales: number;
+  salesCount: number;
+  totalPaid: number;
+  totalPending: number;
+  lastPurchaseDate: Date | null;
+}
+
+export type CustomerReportResult = CustomerReportItem[];
