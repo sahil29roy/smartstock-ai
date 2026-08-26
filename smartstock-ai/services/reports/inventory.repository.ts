@@ -72,7 +72,8 @@ export async function getRecentMovements(
     id: row.id,
     productId: row.productId,
     productName: row.productName,
-    type: row.type as 'IN' | 'OUT' | 'ADJUSTMENT',
+    sku: row.sku,
+    type: row.type as 'IN' | 'OUT' | 'ADJUSTMENT' | 'DAMAGE' | 'LOSS',
     quantity: row.quantity,
     reason: row.reason,
     createdAt: new Date(row.createdAt)

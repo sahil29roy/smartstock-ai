@@ -300,13 +300,16 @@ export async function cancelGoodsReceipt(receiptId: string, userId?: string): Pr
         throw new Error(`Inventory record not found for product ${item.product_id}.`);
       }
       const newQty = inv.quantity - item.quantity;
+      if (newQty < 0) {
+        throw new Error(`Insufficient inventory to cancel goods receipt. Product ${item.product_id} has ${inv.quantity} in stock, but cancellation requires removing ${item.quantity}.`);
+      }
       await inventoryRepo.updateInventory(item.product_id, { quantity: newQty }, client);
 
       // Record compensating OUT stock movement
       await inventoryRepo.createStockMovement(
         {
           product_id: item.product_id,
-          quantity: item.quantity,
+          quantity: -item.quantity,
           type: "OUT",
           reason: `Goods receipt cancelled. Receipt Number: ${receipt.receipt_number}`,
           created_by: userId

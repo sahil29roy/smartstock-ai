@@ -1,4 +1,5 @@
 import * as repo from "./category.repository";
+import * as productRepo from "../product/product.repository";
 import { Category, CreateCategoryInput, UpdateCategoryInput } from "@/types/category/category.types";
 
 export async function createCategory(input: CreateCategoryInput): Promise<Category> {
@@ -46,6 +47,13 @@ export async function deleteCategory(id: string): Promise<boolean> {
   if (!exists) {
     throw new Error("Category not found.");
   }
+
+  // Check if any active products are associated with this category
+  const activeProducts = await productRepo.getProducts({ categoryId: id });
+  if (activeProducts.length > 0) {
+    throw new Error("Cannot delete category because active products are referencing it.");
+  }
+
   return repo.softDeleteCategory(id);
 }
 

@@ -19,6 +19,8 @@ export async function getCustomerReport(
       MAX(s.created_at) as "lastPurchaseDate"
     FROM customers c
     LEFT JOIN sales s ON c.id = s.customer_id AND s.status <> 'CANCELLED'
+      AND ($1::TIMESTAMPTZ IS NULL OR s.created_at >= $1)
+      AND ($2::TIMESTAMPTZ IS NULL OR s.created_at <= $2)
     LEFT JOIN (
       SELECT sale_id, SUM(amount) as paid_amount
       FROM payments
@@ -26,8 +28,6 @@ export async function getCustomerReport(
       GROUP BY sale_id
     ) pay ON s.id = pay.sale_id
     WHERE c.deleted_at IS NULL
-      AND ($1::TIMESTAMPTZ IS NULL OR s.created_at >= $1)
-      AND ($2::TIMESTAMPTZ IS NULL OR s.created_at <= $2)
     GROUP BY c.id, c.name, c.email, c.phone
     ORDER BY "totalSales" DESC
     LIMIT $3

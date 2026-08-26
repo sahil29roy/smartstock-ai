@@ -43,7 +43,8 @@ export interface RecentStockMovement {
   id: string;
   productId: string;
   productName: string;
-  type: 'IN' | 'OUT' | 'ADJUSTMENT';
+  sku: string;
+  type: 'IN' | 'OUT' | 'ADJUSTMENT' | 'DAMAGE' | 'LOSS';
   quantity: number;
   reason?: string | null;
   createdAt: Date;
