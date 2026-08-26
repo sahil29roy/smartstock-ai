@@ -4,9 +4,12 @@ import * as accountsRepo from "../accounts/accounts.repository";
 import { Payment, CreatePaymentInput } from "@/types/sales/sales.types";
 
 export async function createPayment(input: CreatePaymentInput): Promise<Payment> {
+  if (!input.sale_id) {
+    throw new Error("sale_id is required for sales payment.");
+  }
   return repo.withTransaction(async (client) => {
     // 1. Lock and retrieve sale
-    const sale = await salesRepo.getSaleByIdForUpdate(input.sale_id, client);
+    const sale = await salesRepo.getSaleByIdForUpdate(input.sale_id!, client);
     if (!sale) {
       throw new Error("Sale not found.");
     }
@@ -16,7 +19,7 @@ export async function createPayment(input: CreatePaymentInput): Promise<Payment>
     }
 
     // 2. Fetch completed payments to calculate outstanding balance
-    const payments = await repo.getPaymentsBySaleId(input.sale_id, client);
+    const payments = await repo.getPaymentsBySaleId(input.sale_id!, client);
     const totalPaid = payments
       .filter((p) => p.status === "COMPLETED")
       .reduce((sum, p) => sum + p.amount, 0);
@@ -84,6 +87,6 @@ export async function getPaymentById(id: string): Promise<Payment | null> {
   return repo.getPaymentById(id);
 }
 
-export async function getPayments(filters?: { saleId?: string; status?: string }): Promise<Payment[]> {
+export async function getPayments(filters?: { saleId?: string; purchaseId?: string; status?: string }): Promise<Payment[]> {
   return repo.getPayments(filters);
 }

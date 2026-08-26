@@ -20,12 +20,16 @@ export const createSaleItemSchema = z.object({
 });
 
 export const createPaymentSchema = z.object({
-  sale_id: z.string().uuid("Sale ID must be a valid UUID"),
-  account_id: z.string().uuid("Account ID must be a valid UUID").optional(),
+  sale_id: z.string().uuid("Sale ID must be a valid UUID").optional(),
+  purchase_id: z.string().uuid("Purchase ID must be a valid UUID").optional(),
+  account_id: z.string().optional(),
   amount: z.number().positive("Payment amount must be positive"),
   payment_method: z.enum(["CASH", "CARD", "BANK_TRANSFER", "UPI"]),
   status: z.enum(["PENDING", "COMPLETED", "FAILED"]).optional(),
   created_by: z.string().uuid("Created by must be a valid UUID").nullable().optional(),
+}).refine(data => data.sale_id || data.purchase_id, {
+  message: "Either sale_id or purchase_id must be provided",
+  path: ["sale_id"]
 });
 
 export const updatePaymentSchema = z.object({
