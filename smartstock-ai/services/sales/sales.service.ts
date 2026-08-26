@@ -182,8 +182,11 @@ export async function getSales(filters?: { customerId?: string; status?: SaleSta
 // === Payments Service ===
 
 export async function createPayment(input: CreatePaymentInput): Promise<Payment> {
+  if (!input.sale_id) {
+    throw new Error("Sale ID is required for sales payment.");
+  }
   return repo.withTransaction(async (client) => {
-    const sale = await repo.getSaleByIdForUpdate(input.sale_id, client);
+    const sale = await repo.getSaleByIdForUpdate(input.sale_id!, client);
     if (!sale) {
       throw new Error("Sale not found.");
     }
@@ -218,7 +221,7 @@ export async function createPayment(input: CreatePaymentInput): Promise<Payment>
       await accountsRepo.updateAccountBalance(accountId, payment.amount, client);
 
       // Fetch all completed payments to update Sale status
-      const payments = await repo.getPaymentsBySaleId(input.sale_id, client);
+      const payments = await repo.getPaymentsBySaleId(input.sale_id!, client);
       const totalPaid = payments
         .filter(p => p.status === "COMPLETED")
         .reduce((sum, p) => sum + p.amount, 0);
