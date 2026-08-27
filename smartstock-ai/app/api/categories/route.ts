@@ -6,7 +6,7 @@ import { createCategorySchema } from "@/validators/category/category.validator";
 import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
-  withRoles(["ADMIN", "WAREHOUSE", "SALES", "ACCOUNTS"], async (request: AuthenticatedRequest) => {
+  withRoles(["ADMIN", "WAREHOUSE", "SALES", "ACCOUNTS", "MANAGER"], async (request: AuthenticatedRequest) => {
     try {
       const { searchParams } = new URL(request.url);
       const includeDeleted = searchParams.get("includeDeleted") === "true";
@@ -20,7 +20,7 @@ export const GET = withAuth(
 );
 
 export const POST = withAuth(
-  withRoles(["ADMIN", "WAREHOUSE"], async (request: AuthenticatedRequest) => {
+  withRoles(["ADMIN", "WAREHOUSE", "MANAGER"], async (request: AuthenticatedRequest) => {
     try {
       const body = await request.json();
 

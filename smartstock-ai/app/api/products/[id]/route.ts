@@ -7,7 +7,7 @@ import { handleRouteError } from "@/lib/errors";
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const GET = withAuth(
-  withRoles(["ADMIN", "WAREHOUSE", "SALES", "ACCOUNTS"], async (request: AuthenticatedRequest, context: any) => {
+  withRoles(["ADMIN", "WAREHOUSE", "SALES", "ACCOUNTS", "MANAGER"], async (request: AuthenticatedRequest, context: any) => {
     try {
       const params = await context.params;
       const { id } = params;
@@ -29,7 +29,7 @@ export const GET = withAuth(
 );
 
 export const PATCH = withAuth(
-  withRoles(["ADMIN", "WAREHOUSE"], async (request: AuthenticatedRequest, context: any) => {
+  withRoles(["ADMIN", "WAREHOUSE", "MANAGER"], async (request: AuthenticatedRequest, context: any) => {
     try {
       const params = await context.params;
       const { id } = params;
@@ -59,7 +59,7 @@ export const PATCH = withAuth(
 );
 
 export const DELETE = withAuth(
-  withRoles(["ADMIN", "WAREHOUSE"], async (request: AuthenticatedRequest, context: any) => {
+  withRoles(["ADMIN", "WAREHOUSE", "MANAGER"], async (request: AuthenticatedRequest, context: any) => {
     try {
       const params = await context.params;
       const { id } = params;
