@@ -1,49 +1,108 @@
 "use client";
 
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageContainer } from "@/components/layout/page-container";
-import { PageHeader } from "@/components/common/page-header";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { useAuth } from "@/components/auth/auth-provider";
-import { StatusBadge } from "@/components/common/status-badge";
+import { ErrorState } from "@/components/feedback/error-state";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { KpiSection } from "@/components/dashboard/kpi-card";
+import { SalesOverview } from "@/components/dashboard/sales-overview";
+import { InventoryAlerts } from "@/components/dashboard/inventory-alerts";
+import { RecentActivity } from "@/components/dashboard/recent-activity";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
+import { dashboardClient } from "@/lib/dashboard.client";
+import { DashboardSummaryResult } from "@/types/reports/reports.types";
 
-export default function DashboardPlaceholder() {
+export default function DashboardPage() {
   const { user } = useAuth();
+  const [data, setData] = useState<DashboardSummaryResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [dates, setDates] = useState<{ startDate?: string; endDate?: string }>({});
+
+  const role = user?.role || "ADMIN";
+
+  const showChart = ["ADMIN", "MANAGER", "SALES", "ACCOUNTS"].includes(role);
+  const showAlerts = ["ADMIN", "MANAGER", "WAREHOUSE"].includes(role);
+
+  const fetchDashboardData = useCallback(async (start?: string, end?: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await dashboardClient.getDashboardSummary({
+        startDate: start,
+        endDate: end,
+      });
+      if (response.success) {
+        setData(response.data);
+      } else {
+        setError("Failed to fetch dashboard overview data.");
+      }
+    } catch (err: unknown) {
+      console.error("Dashboard page data load error:", err);
+      const message =
+        err instanceof Error
+          ? err.message
+          : "An unexpected error occurred while loading dashboard statistics.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleDateChange = (start?: string, end?: string) => {
+    setDates({ startDate: start, endDate: end });
+    fetchDashboardData(start, end);
+  };
+
+  const handleRetry = () => {
+    fetchDashboardData(dates.startDate, dates.endDate);
+  };
+
+  // Prevent loading twice on initial mount if dates changes trigger it.
+  // The DashboardHeader triggers date calculations on mount which triggers onDateChange.
+  // So we let DashboardHeader trigger the initial load via handleDateChange.
 
   return (
     <ProtectedRoute>
       <AppShell>
         <PageContainer>
-          <PageHeader
-            title="Dashboard Overview"
-            description="Operational monitoring hub and system statistics."
-          />
+          <DashboardHeader onDateChange={handleDateChange} />
 
-          <div className="mt-6 space-y-6">
-            <Card className="bg-surface border-border">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold text-foreground">
-                  Welcome to SmartStock, {user?.name}!
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Authentication established successfully.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3 text-xs text-secondary-text">
-                  <span className="font-semibold">Current Session Role:</span>
-                  <StatusBadge status={user?.role || "USER"} />
-                </div>
-                <div className="p-4 bg-primary-very-light dark:bg-primary-light/5 border border-primary-light/20 rounded-lg text-xs leading-relaxed text-secondary-text">
-                  <strong>Note:</strong> This dashboard is a temporary placeholder implemented for 
-                  <strong> Phase 12 (Authentication & Session verification)</strong>. The full operational 
-                  dashboard graphs, report summaries, and stats will be implemented in Phase 13.
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {loading ? (
+            <DashboardSkeleton />
+          ) : error ? (
+            <div className="mt-6">
+              <ErrorState
+                title="Unable to load dashboard data"
+                message={error}
+                onRetry={handleRetry}
+              />
+            </div>
+          ) : data ? (
+            <div className="mt-6 space-y-6">
+              {/* KPI cards section */}
+              <KpiSection kpis={data.kpis} />
+
+              {/* Sales Chart section */}
+              {showChart && <SalesOverview salesTrend={data.salesTrend} />}
+
+              {/* Alerts & Activities section */}
+              <div
+                className={`grid gap-6 ${
+                  showAlerts ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
+                }`}
+              >
+                {showAlerts && (
+                  <InventoryAlerts alerts={data.lowStockAlerts} />
+                )}
+
+                <RecentActivity activity={data.recentActivity} />
+              </div>
+            </div>
+          ) : null}
         </PageContainer>
       </AppShell>
     </ProtectedRoute>

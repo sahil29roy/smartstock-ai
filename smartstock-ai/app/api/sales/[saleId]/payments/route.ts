@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as salesService from "@/services/sales/sales.service";
-import { createPaymentSchema } from "@/validators/sales/sales.validator";
+import { createPaymentBaseSchema } from "@/validators/sales/sales.validator";
 import { handleRouteError } from "@/lib/errors";
 
-const paymentBodySchema = createPaymentSchema.omit({ sale_id: true, created_by: true });
+const paymentBodySchema = createPaymentBaseSchema.omit({ sale_id: true, created_by: true });
 
 export const POST = withAuth(
   withRoles(["ADMIN", "ACCOUNTS"], async (request: AuthenticatedRequest, context: any) => {
