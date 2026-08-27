@@ -11,7 +11,7 @@ export const StatusBadge = ({ status, className = "" }: StatusBadgeProps) => {
 
   let variant: "success" | "warning" | "danger" | "neutral" = "neutral";
 
-  if (["SUCCESS", "ACTIVE", "COMPLETED", "PAID", "IN_STOCK"].includes(cleanStatus)) {
+  if (["SUCCESS", "ACTIVE", "COMPLETED", "PAID", "IN_STOCK", "DELIVERED", "DISPATCHED"].includes(cleanStatus)) {
     variant = "success";
   } else if (["WARNING", "PENDING", "LOW_STOCK", "PARTIALLY_PAID"].includes(cleanStatus)) {
     variant = "warning";
