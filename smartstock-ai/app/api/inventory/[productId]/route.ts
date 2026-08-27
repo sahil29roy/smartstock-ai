@@ -6,7 +6,7 @@ import { adjustInventoryApiSchema } from "@/validators/inventory/inventory.valid
 import { handleRouteError } from "@/lib/errors";
 
 export const PATCH = withAuth(
-  withRoles(["ADMIN", "WAREHOUSE"], async (request: AuthenticatedRequest, context: any) => {
+  withRoles(["ADMIN", "WAREHOUSE", "MANAGER"], async (request: AuthenticatedRequest, context: any) => {
     try {
       const params = await context.params;
       const { productId } = params;

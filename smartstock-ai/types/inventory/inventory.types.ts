@@ -8,6 +8,13 @@ export interface Inventory {
   updated_at: Date;
 }
 
+export interface InventoryWithProduct extends Inventory {
+  product_name: string;
+  sku: string;
+  category_id: string;
+  minimum_stock: number;
+}
+
 export interface CreateInventoryInput {
   product_id: string;
   quantity?: number;
@@ -39,4 +46,9 @@ export interface CreateStockMovementInput {
   type: StockMovementType;
   reason?: string | null;
   created_by?: string | null;
+}
+
+export interface AdjustInventoryApiInput {
+  location?: string | null;
+  reserved_change?: number;
 }

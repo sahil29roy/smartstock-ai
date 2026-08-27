@@ -1,6 +1,7 @@
 import * as repo from "./inventory.repository";
 import {
   Inventory,
+  InventoryWithProduct,
   StockMovement,
   CreateStockMovementInput,
   UpdateInventoryInput
@@ -70,4 +71,8 @@ export async function recordStockMovement(input: CreateStockMovementInput): Prom
 
 export async function getStockMovements(productId?: string): Promise<StockMovement[]> {
   return repo.getStockMovements(productId);
+}
+
+export async function getAllInventory(): Promise<InventoryWithProduct[]> {
+  return repo.getAllInventory();
 }
