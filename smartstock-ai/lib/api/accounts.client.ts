@@ -27,4 +27,16 @@ export const accountsClient = {
   updateAccount: async (id: string, input: UpdateAccountInput): Promise<AccountResponse> => {
     return apiClient.patch<AccountResponse>(`/api/accounts/${id}`, input);
   },
+
+  getAccountTransactions: async (accountId: string): Promise<{ success: boolean; payments: any[] }> => {
+    // Deriving account transactions by fetching and filtering global payments list
+    const response = await apiClient.get<{ success: boolean; payments: any[] }>("/api/payments");
+    if (response.success && response.payments) {
+      return {
+        success: true,
+        payments: response.payments.filter((p) => p.account_id === accountId),
+      };
+    }
+    return { success: false, payments: [] };
+  },
 };
