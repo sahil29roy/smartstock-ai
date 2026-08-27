@@ -2,6 +2,7 @@ import { pool } from "@/lib/db";
 import { PoolClient } from "pg";
 import {
   Inventory,
+  InventoryWithProduct,
   CreateInventoryInput,
   UpdateInventoryInput,
   StockMovement,
@@ -129,5 +130,29 @@ export async function getStockMovements(productId?: string): Promise<StockMoveme
   }
   sql += " ORDER BY created_at DESC";
   const result = await pool.query(sql, params);
+  return result.rows;
+}
+
+export async function getAllInventory(client?: PoolClient): Promise<InventoryWithProduct[]> {
+  const sql = `
+    SELECT
+      COALESCE(i.id, '') as id,
+      p.id as product_id,
+      COALESCE(i.quantity, 0)::INT as quantity,
+      COALESCE(i.reserved_quantity, 0)::INT as reserved_quantity,
+      i.location,
+      COALESCE(i.created_at, p.created_at) as created_at,
+      COALESCE(i.updated_at, p.updated_at) as updated_at,
+      p.name as product_name,
+      p.sku,
+      p.category_id,
+      p.minimum_stock
+    FROM products p
+    LEFT JOIN inventory i ON p.id = i.product_id
+    WHERE p.deleted_at IS NULL
+    ORDER BY p.name ASC
+  `;
+  const executor = client || pool;
+  const result = await executor.query(sql);
   return result.rows;
 }

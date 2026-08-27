@@ -53,7 +53,7 @@ export function getFilteredNavItems(role: string | undefined): NavItem[] {
       return navItems;
     case "SALES":
       return navItems.filter(item => 
-        ["Dashboard", "Customers", "Sales", "Challans", "Payments"].includes(item.label)
+        ["Dashboard", "Customers", "Sales", "Challans", "Payments", "Inventory"].includes(item.label)
       );
     case "WAREHOUSE":
       return navItems.filter(item => 
@@ -62,6 +62,10 @@ export function getFilteredNavItems(role: string | undefined): NavItem[] {
     case "MANAGER":
       return navItems.filter(item => 
         ["Dashboard", "Products", "Categories", "Inventory", "Sales", "Procurement", "Accounts", "Reports"].includes(item.label)
+      );
+    case "ACCOUNTS":
+      return navItems.filter(item => 
+        ["Dashboard", "Inventory", "Payments", "Accounts", "Reports"].includes(item.label)
       );
     default:
       // USER or any undefined role gets fallback dashboard only
