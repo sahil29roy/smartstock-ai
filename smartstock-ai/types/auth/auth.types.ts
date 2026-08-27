@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'SALES' | 'WAREHOUSE' | 'ACCOUNTS';
+export type UserRole = 'ADMIN' | 'SALES' | 'WAREHOUSE' | 'ACCOUNTS' | 'MANAGER' | 'USER';
 
 export interface User {
   id: string;
@@ -21,4 +21,19 @@ export interface JWTPayload {
 export interface AuthSession {
   user: Omit<User, "password_hash">;
   token: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  user: Omit<User, "password_hash">;
+}
+
+export interface MeResponse {
+  success: boolean;
+  user: Omit<User, "password_hash">;
 }

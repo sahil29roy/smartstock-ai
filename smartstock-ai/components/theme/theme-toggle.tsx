@@ -7,7 +7,7 @@ import { DropdownMenu } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 
 export const ThemeToggle = () => {
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
 
   const items = [
     {

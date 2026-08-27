@@ -4,7 +4,8 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X, Warehouse } from "lucide-react";
-import { navItems } from "./sidebar";
+import { getFilteredNavItems } from "./sidebar";
+import { useAuth } from "@/components/auth/auth-provider";
 
 interface MobileSidebarProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface MobileSidebarProps {
 
 export const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -26,6 +28,8 @@ export const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const filteredItems = getFilteredNavItems(user?.role);
 
   return (
     <div className="fixed inset-0 z-40 md:hidden flex">
@@ -58,7 +62,7 @@ export const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
 
         {/* Navigation list */}
         <nav className="flex-1 overflow-y-auto p-4 space-y-1">
-          {navItems.map((item) => {
+          {filteredItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
             return (

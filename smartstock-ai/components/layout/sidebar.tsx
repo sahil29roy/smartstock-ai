@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/components/auth/auth-provider";
 import {
   LayoutDashboard,
   Package,
@@ -44,6 +45,30 @@ export const navItems: NavItem[] = [
   { label: "Settings", href: "/settings", icon: Settings },
 ];
 
+export function getFilteredNavItems(role: string | undefined): NavItem[] {
+  if (!role) return [];
+  
+  switch (role) {
+    case "ADMIN":
+      return navItems;
+    case "SALES":
+      return navItems.filter(item => 
+        ["Dashboard", "Customers", "Sales", "Challans", "Payments"].includes(item.label)
+      );
+    case "WAREHOUSE":
+      return navItems.filter(item => 
+        ["Dashboard", "Products", "Inventory", "Challans", "Procurement"].includes(item.label)
+      );
+    case "MANAGER":
+      return navItems.filter(item => 
+        ["Dashboard", "Products", "Inventory", "Sales", "Procurement", "Accounts", "Reports"].includes(item.label)
+      );
+    default:
+      // USER or any undefined role gets fallback dashboard only
+      return navItems.filter(item => ["Dashboard"].includes(item.label));
+  }
+}
+
 interface SidebarProps {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
@@ -51,6 +76,9 @@ interface SidebarProps {
 
 export const Sidebar = ({ collapsed, setCollapsed }: SidebarProps) => {
   const pathname = usePathname();
+  const { user } = useAuth();
+  
+  const filteredItems = getFilteredNavItems(user?.role);
 
   return (
     <aside
@@ -83,7 +111,7 @@ export const Sidebar = ({ collapsed, setCollapsed }: SidebarProps) => {
 
       {/* Navigation links */}
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        {navItems.map((item) => {
+        {filteredItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
           return (
