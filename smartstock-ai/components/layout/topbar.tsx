@@ -1,34 +1,54 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { Menu, Bell, Search, User, LogOut, Settings } from "lucide-react";
 import { ThemeToggle } from "../theme/theme-toggle";
 import { DropdownMenu } from "../ui/dropdown-menu";
 import { SearchInput } from "../common/search-input";
+import { useAuth } from "@/components/auth/auth-provider";
 
 interface TopbarProps {
   onMenuClick: () => void;
 }
 
+const getInitials = (name?: string) => {
+  if (!name) return "U";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+};
+
 export const Topbar = ({ onMenuClick }: TopbarProps) => {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
   const userMenuItems = [
     {
       label: "My Profile",
       icon: <User className="h-4 w-4 text-secondary-text" />,
-      onClick: () => console.log("Profile clicked"),
+      onClick: () => router.push("/profile"),
     },
     {
       label: "Settings",
       icon: <Settings className="h-4 w-4 text-secondary-text" />,
-      onClick: () => console.log("Settings clicked"),
+      onClick: () => router.push("/settings"),
     },
     {
       label: "Logout",
       icon: <LogOut className="h-4 w-4 text-danger" />,
       destructive: true,
-      onClick: () => console.log("Logout clicked"),
+      onClick: async () => {
+        await logout();
+      },
     },
   ];
+
+  const initials = getInitials(user?.name);
+  const displayName = user?.name || "SmartStock User";
+  const displayRole = user?.role || "USER";
 
   return (
     <header className="h-14 bg-surface border-b border-border flex items-center justify-between px-4 sticky top-0 z-10 w-full shrink-0">
@@ -72,12 +92,12 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
         <DropdownMenu
           trigger={
             <button className="flex items-center gap-2 hover:bg-background/80 p-1.5 rounded-lg transition-colors cursor-pointer text-left focus:outline-none">
-              <div className="h-7 w-7 rounded-full bg-primary-very-light dark:bg-primary-light/10 text-primary border border-primary-light/20 flex items-center justify-center font-bold text-xs">
-                SR
+              <div className="h-7 w-7 rounded-full bg-primary-very-light dark:bg-primary-light/10 text-primary border border-primary-light/20 flex items-center justify-center font-bold text-xs select-none">
+                {initials}
               </div>
               <div className="hidden lg:flex flex-col select-none">
-                <span className="text-xs font-semibold text-foreground leading-none">Sahil Roy</span>
-                <span className="text-[9px] font-medium text-secondary-text mt-0.5 uppercase tracking-wider">Super Admin</span>
+                <span className="text-xs font-semibold text-foreground leading-none">{displayName}</span>
+                <span className="text-[9px] font-medium text-secondary-text mt-0.5 uppercase tracking-wider">{displayRole}</span>
               </div>
             </button>
           }

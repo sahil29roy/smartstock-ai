@@ -2,7 +2,7 @@ import React from "react";
 import { Input, InputProps } from "../ui/input";
 import { Search } from "lucide-react";
 
-export interface SearchInputProps extends Omit<InputProps, "icon"> {}
+export type SearchInputProps = Omit<InputProps, "icon">;
 
 export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   ({ className = "", placeholder = "Search...", ...props }, ref) => {
