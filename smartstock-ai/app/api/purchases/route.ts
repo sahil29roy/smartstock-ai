@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as procurementService from "@/services/procurement/procurement.service";
+import { handleRouteError } from "@/lib/errors";
 
 export const POST = withAuth(
   withRoles(["ADMIN", "ACCOUNTS"], async (request: AuthenticatedRequest) => {
@@ -16,17 +17,7 @@ export const POST = withAuth(
 
       return NextResponse.json({ success: true, purchase }, { status: 201 });
     } catch (error: any) {
-      console.error("POST /api/purchases error:", error);
-      if (error.name === "ZodError") {
-        return NextResponse.json(
-          { error: "Validation failed", details: error.format() },
-          { status: 400 }
-        );
-      }
-      if (error.message.includes("not found") || error.message.includes("inactive")) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "POST /api/purchases");
     }
   })
 );
@@ -41,8 +32,7 @@ export const GET = withAuth(
       const purchases = await procurementService.getPurchases({ supplierId, status });
       return NextResponse.json({ success: true, purchases });
     } catch (error: any) {
-      console.error("GET /api/purchases error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/purchases");
     }
   })
 );

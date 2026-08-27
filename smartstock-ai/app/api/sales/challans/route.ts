@@ -4,6 +4,7 @@ import { withRoles } from "@/middleware/authorize";
 import * as salesService from "@/services/sales/sales.service";
 import { createChallanSchema } from "@/validators/sales/sales.validator";
 import { z } from "zod";
+import { handleRouteError } from "@/lib/errors";
 
 const challanItemBodySchema = z.object({
   product_id: z.string().uuid("Product ID must be a valid UUID"),
@@ -44,17 +45,7 @@ export const POST = withAuth(
 
       return NextResponse.json({ success: true, challan }, { status: 201 });
     } catch (error: any) {
-      console.error("POST /api/sales/challans error:", error);
-      if (
-        error.message.includes("Insufficient") ||
-        error.message.includes("not found") ||
-        error.message.includes("exceeding") ||
-        error.message.includes("already exists") ||
-        error.message.includes("cancelled")
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "POST /api/sales/challans");
     }
   })
 );
@@ -69,8 +60,7 @@ export const GET = withAuth(
       const challans = await salesService.getChallans({ saleId, status });
       return NextResponse.json({ success: true, challans });
     } catch (error: any) {
-      console.error("GET /api/sales/challans error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/sales/challans");
     }
   })
 );

@@ -3,6 +3,7 @@ import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as customerService from "@/services/customer/customer.service";
 import { updateCustomerSchema } from "@/validators/customer/customer.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "SALES", "ACCOUNTS", "WAREHOUSE"], async (request: AuthenticatedRequest, context: any) => {
@@ -13,11 +14,7 @@ export const GET = withAuth(
       const customer = await customerService.getCustomerById(id);
       return NextResponse.json({ success: true, customer });
     } catch (error: any) {
-      console.error(`GET /api/customers/:id error:`, error);
-      if (error.message === "Customer not found.") {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/customers/:id");
     }
   })
 );
@@ -40,14 +37,7 @@ export const PATCH = withAuth(
       const customer = await customerService.updateCustomer(id, parsed.data);
       return NextResponse.json({ success: true, customer });
     } catch (error: any) {
-      console.error(`PATCH /api/customers/:id error:`, error);
-      if (error.message === "Customer not found.") {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      return NextResponse.json(
-        { error: error.message || "Internal server error" },
-        { status: error.message?.includes("already exists") ? 400 : 500 }
-      );
+      return handleRouteError(error, "PATCH /api/customers/:id");
     }
   })
 );
@@ -61,11 +51,7 @@ export const DELETE = withAuth(
       await customerService.deleteCustomer(id);
       return NextResponse.json({ success: true, message: "Customer soft-deleted successfully" });
     } catch (error: any) {
-      console.error(`DELETE /api/customers/:id error:`, error);
-      if (error.message === "Customer not found.") {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "DELETE /api/customers/:id");
     }
   })
 );

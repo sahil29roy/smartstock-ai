@@ -46,6 +46,8 @@ export async function updateChallan(
     // 2. Reversal logic if transitioning to CANCELLED
     if (newStatus === "CANCELLED") {
       const items = await repo.getChallanItems(id, client);
+      // Sort items by product_id to prevent deadlocks in transactions
+      items.sort((a, b) => a.product_id.localeCompare(b.product_id));
 
       for (const item of items) {
         // Lock inventory row
@@ -95,6 +97,8 @@ export async function deleteChallan(id: string, userId?: string): Promise<boolea
     // If it was dispatched/delivered, reverse inventory first
     if (challan.status === "DISPATCHED" || challan.status === "DELIVERED") {
       const items = await repo.getChallanItems(id, client);
+      // Sort items by product_id to prevent deadlocks in transactions
+      items.sort((a, b) => a.product_id.localeCompare(b.product_id));
       for (const item of items) {
         const inv = await inventoryRepo.getInventoryByProductIdForUpdate(item.product_id, client);
         if (inv) {

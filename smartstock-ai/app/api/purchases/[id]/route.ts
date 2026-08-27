@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as procurementService from "@/services/procurement/procurement.service";
+import { updatePurchaseSchema } from "@/validators/procurement/procurement.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "ACCOUNTS", "WAREHOUSE"], async (request: AuthenticatedRequest, context: any) => {
@@ -16,8 +18,7 @@ export const GET = withAuth(
 
       return NextResponse.json({ success: true, purchase });
     } catch (error: any) {
-      console.error("GET /api/purchases/:id error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/purchases/:id");
     }
   })
 );
@@ -29,8 +30,15 @@ export const PATCH = withAuth(
       const { id } = params;
 
       const body = await request.json();
-      const { status } = body;
+      const parseResult = updatePurchaseSchema.pick({ status: true }).safeParse(body);
+      if (!parseResult.success) {
+        return NextResponse.json(
+          { error: "Validation failed", details: parseResult.error.format() },
+          { status: 400 }
+        );
+      }
 
+      const { status } = parseResult.data;
       if (!status) {
         return NextResponse.json({ error: "status is required to patch purchase order" }, { status: 400 });
       }
@@ -43,15 +51,7 @@ export const PATCH = withAuth(
       const updated = await procurementService.updatePurchaseStatus(id, status);
       return NextResponse.json({ success: true, purchase: updated });
     } catch (error: any) {
-      console.error("PATCH /api/purchases/:id error:", error);
-      if (
-        error.message.includes("not found") ||
-        error.message.includes("Cannot cancel") ||
-        error.message.includes("status")
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "PATCH /api/purchases/:id");
     }
   })
 );

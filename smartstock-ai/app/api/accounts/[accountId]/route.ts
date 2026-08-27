@@ -3,6 +3,7 @@ import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as accountsService from "@/services/accounts/accounts.service";
 import { updateAccountSchema } from "@/validators/accounts/accounts.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "SALES", "ACCOUNTS"], async (request: AuthenticatedRequest, context: any) => {
@@ -17,8 +18,7 @@ export const GET = withAuth(
 
       return NextResponse.json({ success: true, account });
     } catch (error: any) {
-      console.error("GET /api/accounts/:accountId error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/accounts/:accountId");
     }
   })
 );
@@ -41,14 +41,7 @@ export const PATCH = withAuth(
       const account = await accountsService.updateAccount(accountId, parseResult.data);
       return NextResponse.json({ success: true, account });
     } catch (error: any) {
-      console.error("PATCH /api/accounts/:accountId error:", error);
-      if (error.message.includes("not found")) {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      if (error.message.includes("already exists")) {
-        return NextResponse.json({ error: error.message }, { status: 409 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "PATCH /api/accounts/:accountId");
     }
   })
 );

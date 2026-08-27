@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { login } from "@/services/auth/auth.service";
 import { loginSchema } from "@/validators/auth/auth.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export async function POST(request: Request) {
   try {
@@ -44,10 +45,6 @@ export async function POST(request: Request) {
       user: authSession.user,
     });
   } catch (error) {
-    console.error("Login API Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleRouteError(error, "POST /api/auth/login");
   }
 }

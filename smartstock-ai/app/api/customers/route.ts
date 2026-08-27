@@ -3,6 +3,7 @@ import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as customerService from "@/services/customer/customer.service";
 import { createCustomerSchema } from "@/validators/customer/customer.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "SALES", "ACCOUNTS", "WAREHOUSE"], async (request: AuthenticatedRequest) => {
@@ -13,8 +14,7 @@ export const GET = withAuth(
       const customers = await customerService.getCustomers(includeDeleted);
       return NextResponse.json({ success: true, customers });
     } catch (error: any) {
-      console.error("GET /api/customers error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/customers");
     }
   })
 );
@@ -40,11 +40,7 @@ export const POST = withAuth(
       const customer = await customerService.createCustomer(customerInput);
       return NextResponse.json({ success: true, customer }, { status: 201 });
     } catch (error: any) {
-      console.error("POST /api/customers error:", error);
-      return NextResponse.json(
-        { error: error.message || "Internal server error" },
-        { status: error.message?.includes("already exists") ? 400 : 500 }
-      );
+      return handleRouteError(error, "POST /api/customers");
     }
   })
 );

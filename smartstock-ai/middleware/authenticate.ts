@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifyToken } from "@/services/auth/auth.service";
-import { getUserById } from "@/services/auth/auth.repository";
+import { verifyToken, getUserById } from "@/services/auth/auth.service";
 import { User } from "@/types/auth/auth.types";
 
 export interface AuthenticatedRequest extends Request {

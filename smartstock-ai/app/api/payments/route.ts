@@ -4,6 +4,7 @@ import { withRoles } from "@/middleware/authorize";
 import * as paymentService from "@/services/payment/payment.service";
 import * as procurementService from "@/services/procurement/procurement.service";
 import { createPaymentSchema } from "@/validators/payment/payment.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export const POST = withAuth(
   withRoles(["ADMIN", "ACCOUNTS"], async (request: AuthenticatedRequest) => {
@@ -35,20 +36,7 @@ export const POST = withAuth(
 
       return NextResponse.json({ success: true, payment }, { status: 201 });
     } catch (error: any) {
-      console.error("POST /api/payments error:", error);
-      if (
-        error.message.includes("exceeds outstanding") ||
-        error.message.includes("must be greater than") ||
-        error.message.includes("cancelled") ||
-        error.message.includes("balance") ||
-        error.message.includes("status")
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-      if (error.message.includes("not found")) {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "POST /api/payments");
     }
   })
 );
@@ -64,8 +52,7 @@ export const GET = withAuth(
       const payments = await paymentService.getPayments({ saleId, purchaseId, status });
       return NextResponse.json({ success: true, payments });
     } catch (error: any) {
-      console.error("GET /api/payments error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/payments");
     }
   })
 );

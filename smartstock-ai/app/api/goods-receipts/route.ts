@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as procurementService from "@/services/procurement/procurement.service";
+import { handleRouteError } from "@/lib/errors";
 
 export const POST = withAuth(
   withRoles(["ADMIN", "WAREHOUSE"], async (request: AuthenticatedRequest) => {
@@ -16,23 +17,7 @@ export const POST = withAuth(
 
       return NextResponse.json({ success: true, goodsReceipt: receipt }, { status: 201 });
     } catch (error: any) {
-      console.error("POST /api/goods-receipts error:", error);
-      if (error.name === "ZodError") {
-        return NextResponse.json(
-          { error: "Validation failed", details: error.format() },
-          { status: 400 }
-        );
-      }
-      if (
-        error.message.includes("not found") ||
-        error.message.includes("Cannot receive") ||
-        error.message.includes("Remaining allowed") ||
-        error.message.includes("status") ||
-        error.message.includes("not part of")
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "POST /api/goods-receipts");
     }
   })
 );
@@ -47,8 +32,7 @@ export const GET = withAuth(
       const goodsReceipts = await procurementService.getGoodsReceipts({ purchaseId, status });
       return NextResponse.json({ success: true, goodsReceipts });
     } catch (error: any) {
-      console.error("GET /api/goods-receipts error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/goods-receipts");
     }
   })
 );

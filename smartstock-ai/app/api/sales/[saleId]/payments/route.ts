@@ -3,7 +3,7 @@ import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as salesService from "@/services/sales/sales.service";
 import { createPaymentSchema } from "@/validators/sales/sales.validator";
-
+import { handleRouteError } from "@/lib/errors";
 
 const paymentBodySchema = createPaymentSchema.omit({ sale_id: true, created_by: true });
 
@@ -36,11 +36,7 @@ export const POST = withAuth(
 
       return NextResponse.json({ success: true, payment }, { status: 201 });
     } catch (error: any) {
-      console.error("POST /api/sales/:saleId/payments error:", error);
-      if (error.message.includes("not found")) {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "POST /api/sales/:saleId/payments");
     }
   })
 );
@@ -54,8 +50,7 @@ export const GET = withAuth(
       const payments = await salesService.getPaymentsBySaleId(saleId);
       return NextResponse.json({ success: true, payments });
     } catch (error: any) {
-      console.error("GET /api/sales/:saleId/payments error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/sales/:saleId/payments");
     }
   })
 );

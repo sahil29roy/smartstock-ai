@@ -3,6 +3,7 @@ import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as categoryService from "@/services/category/category.service";
 import { createCategorySchema } from "@/validators/category/category.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "WAREHOUSE", "SALES", "ACCOUNTS"], async (request: AuthenticatedRequest) => {
@@ -13,8 +14,7 @@ export const GET = withAuth(
       const categories = await categoryService.getCategories(includeDeleted);
       return NextResponse.json({ success: true, categories });
     } catch (error: any) {
-      console.error("GET /api/categories error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/categories");
     }
   })
 );
@@ -40,11 +40,7 @@ export const POST = withAuth(
       const category = await categoryService.createCategory(categoryInput);
       return NextResponse.json({ success: true, category }, { status: 201 });
     } catch (error: any) {
-      console.error("POST /api/categories error:", error);
-      return NextResponse.json(
-        { error: error.message || "Internal server error" },
-        { status: error.message?.includes("already exists") ? 400 : 500 }
-      );
+      return handleRouteError(error, "POST /api/categories");
     }
   })
 );

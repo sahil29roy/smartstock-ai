@@ -3,6 +3,7 @@ import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as challanService from "@/services/challan/challan.service";
 import { updateChallanSchema } from "@/validators/challan/challan.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "WAREHOUSE", "SALES"], async (request: AuthenticatedRequest, context: any) => {
@@ -17,8 +18,7 @@ export const GET = withAuth(
 
       return NextResponse.json({ success: true, challan });
     } catch (error: any) {
-      console.error("GET /api/challans/:id error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/challans/:id");
     }
   })
 );
@@ -48,18 +48,7 @@ export const PATCH = withAuth(
 
       return NextResponse.json({ success: true, challan: updatedChallan });
     } catch (error: any) {
-      console.error("PATCH /api/challans/:id error:", error);
-      if (error.message.includes("not found")) {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      if (
-        error.message.includes("Cannot modify") ||
-        error.message.includes("Validation") ||
-        error.message.includes("status")
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "PATCH /api/challans/:id");
     }
   })
 );
@@ -77,11 +66,7 @@ export const DELETE = withAuth(
 
       return NextResponse.json({ success: true, message: "Delivery challan deleted successfully" });
     } catch (error: any) {
-      console.error("DELETE /api/challans/:id error:", error);
-      if (error.message.includes("not found")) {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "DELETE /api/challans/:id");
     }
   })
 );

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as procurementService from "@/services/procurement/procurement.service";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "ACCOUNTS", "WAREHOUSE"], async (request: AuthenticatedRequest, context: any) => {
@@ -16,8 +17,7 @@ export const GET = withAuth(
 
       return NextResponse.json({ success: true, supplier });
     } catch (error: any) {
-      console.error("GET /api/suppliers/:id error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/suppliers/:id");
     }
   })
 );
@@ -33,17 +33,7 @@ export const PUT = withAuth(
 
       return NextResponse.json({ success: true, supplier: updated });
     } catch (error: any) {
-      console.error("PUT /api/suppliers/:id error:", error);
-      if (error.name === "ZodError") {
-        return NextResponse.json(
-          { error: "Validation failed", details: error.format() },
-          { status: 400 }
-        );
-      }
-      if (error.message.includes("not found") || error.message.includes("already exists")) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "PUT /api/suppliers/:id");
     }
   })
 );
@@ -57,11 +47,7 @@ export const DELETE = withAuth(
       const deleted = await procurementService.deleteSupplier(id);
       return NextResponse.json({ success: true, supplier: deleted });
     } catch (error: any) {
-      console.error("DELETE /api/suppliers/:id error:", error);
-      if (error.message.includes("not found")) {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "DELETE /api/suppliers/:id");
     }
   })
 );
