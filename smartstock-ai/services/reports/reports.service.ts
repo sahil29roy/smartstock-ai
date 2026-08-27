@@ -46,6 +46,7 @@ export async function getDashboardSummary(
 
   // Fetch metrics based on role permissions
   const isAdmin = role === "ADMIN";
+  const isManager = role === "MANAGER";
   const isSales = role === "SALES";
   const isWarehouse = role === "WAREHOUSE";
   const isAccounts = role === "ACCOUNTS";
@@ -58,7 +59,7 @@ export async function getDashboardSummary(
   let activeAccountsBalance = 0;
   let receivablesAmount = 0;
 
-  if (isAdmin || isSales || isAccounts) {
+  if (isAdmin || isManager || isSales || isAccounts) {
     const currentSalesStats = await dashboardRepo.getSalesTotalAndCount(startDate, endDate);
     totalSales = currentSalesStats.totalSales;
     orderCount = currentSalesStats.orderCount;
@@ -75,24 +76,24 @@ export async function getDashboardSummary(
     }
   }
 
-  if (isAdmin || isWarehouse) {
+  if (isAdmin || isManager || isWarehouse) {
     lowStockAlertsCount = await dashboardRepo.getLowStockCount();
   }
 
-  if (isAdmin || isAccounts) {
+  if (isAdmin || isManager || isAccounts) {
     activeAccountsBalance = await dashboardRepo.getAccountsBalance();
     receivablesAmount = await dashboardRepo.getReceivablesAmount(startDate, endDate);
   }
 
   // 2. Sales Trend (not visible to warehouse)
   let salesTrend: SalesTrendPoint[] = [];
-  if (isAdmin || isSales || isAccounts) {
+  if (isAdmin || isManager || isSales || isAccounts) {
     salesTrend = await dashboardRepo.getSalesTrend(startDate, endDate, "day");
   }
 
-  // 3. Low stock alerts (visible to warehouse and admin only)
+  // 3. Low stock alerts (visible to warehouse and admin/manager only)
   let lowStockAlerts: LowStockDetailItem[] = [];
-  if (isAdmin || isWarehouse) {
+  if (isAdmin || isManager || isWarehouse) {
     lowStockAlerts = await dashboardRepo.getLowStockAlerts();
   }
 
@@ -110,12 +111,12 @@ export async function getDashboardSummary(
 
   return {
     kpis: {
-      totalSales: isAdmin || isSales || isAccounts ? totalSales : 0,
-      salesGrowthPercentage: isAdmin || isSales || isAccounts ? salesGrowthPercentage : undefined,
-      orderCount: isAdmin || isSales || isAccounts ? orderCount : 0,
-      lowStockAlertsCount: isAdmin || isWarehouse ? lowStockAlertsCount : 0,
-      activeAccountsBalance: isAdmin || isAccounts ? activeAccountsBalance : 0,
-      receivablesAmount: isAdmin || isAccounts ? receivablesAmount : 0,
+      totalSales: isAdmin || isManager || isSales || isAccounts ? totalSales : 0,
+      salesGrowthPercentage: isAdmin || isManager || isSales || isAccounts ? salesGrowthPercentage : undefined,
+      orderCount: isAdmin || isManager || isSales || isAccounts ? orderCount : 0,
+      lowStockAlertsCount: isAdmin || isManager || isWarehouse ? lowStockAlertsCount : 0,
+      activeAccountsBalance: isAdmin || isManager || isAccounts ? activeAccountsBalance : 0,
+      receivablesAmount: isAdmin || isManager || isAccounts ? receivablesAmount : 0,
     },
     salesTrend,
     lowStockAlerts,

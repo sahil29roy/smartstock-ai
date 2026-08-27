@@ -19,7 +19,7 @@ export const createSaleItemSchema = z.object({
   unit_price: z.number().nonnegative("Unit price cannot be negative"),
 });
 
-export const createPaymentSchema = z.object({
+export const createPaymentBaseSchema = z.object({
   sale_id: z.string().uuid("Sale ID must be a valid UUID").optional(),
   purchase_id: z.string().uuid("Purchase ID must be a valid UUID").optional(),
   account_id: z.string().optional(),
@@ -27,7 +27,9 @@ export const createPaymentSchema = z.object({
   payment_method: z.enum(["CASH", "CARD", "BANK_TRANSFER", "UPI"]),
   status: z.enum(["PENDING", "COMPLETED", "FAILED"]).optional(),
   created_by: z.string().uuid("Created by must be a valid UUID").nullable().optional(),
-}).refine(data => data.sale_id || data.purchase_id, {
+});
+
+export const createPaymentSchema = createPaymentBaseSchema.refine(data => data.sale_id || data.purchase_id, {
   message: "Either sale_id or purchase_id must be provided",
   path: ["sale_id"]
 });

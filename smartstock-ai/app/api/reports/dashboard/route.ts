@@ -6,7 +6,7 @@ import { dashboardSummaryQuerySchema } from "@/validators/reports/reports.valida
 import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
-  withRoles(["ADMIN", "SALES", "WAREHOUSE", "ACCOUNTS"], async (request: AuthenticatedRequest) => {
+  withRoles(["ADMIN", "SALES", "WAREHOUSE", "ACCOUNTS", "MANAGER", "USER"], async (request: AuthenticatedRequest) => {
     try {
       const { searchParams } = new URL(request.url);
       const queryParams = Object.fromEntries(searchParams.entries());
@@ -23,7 +23,7 @@ export const GET = withAuth(
       const data = await reportsService.getDashboardSummary(parseResult.data, role);
 
       return NextResponse.json({ success: true, data });
-    } catch (error: any) {
+    } catch (error) {
       return handleRouteError(error, "GET /api/reports/dashboard");
     }
   })
