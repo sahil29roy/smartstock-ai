@@ -153,6 +153,8 @@ export async function getPurchases(filters?: { supplierId?: string; status?: Pur
 
 export async function createGoodsReceipt(input: any): Promise<GoodsReceipt & { items: GoodsReceiptItem[] }> {
   const validated = createGoodsReceiptSchema.parse(input);
+  // Sort items by product_id to prevent deadlocks in transactions
+  validated.items.sort((a, b) => a.product_id.localeCompare(b.product_id));
 
   return repo.withTransaction(async (client) => {
     // 1. Lock and verify Purchase Order
@@ -284,6 +286,7 @@ export async function cancelGoodsReceipt(receiptId: string, userId?: string): Pr
 
     // 3. Revert quantities and record compensating stock movements
     const receiptItems = await repo.getGoodsReceiptItems(receipt.id, client);
+    receiptItems.sort((a, b) => a.product_id.localeCompare(b.product_id));
     for (const item of receiptItems) {
       const poItem = await repo.getPurchaseItemForUpdate(purchase.id, item.product_id, client);
       if (!poItem) {

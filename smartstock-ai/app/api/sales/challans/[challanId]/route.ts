@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as salesService from "@/services/sales/sales.service";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "WAREHOUSE", "SALES"], async (request: AuthenticatedRequest, context: any) => {
@@ -16,8 +17,7 @@ export const GET = withAuth(
 
       return NextResponse.json({ success: true, challan });
     } catch (error: any) {
-      console.error("GET /api/sales/challans/:challanId error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/sales/challans/:challanId");
     }
   })
 );

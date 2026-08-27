@@ -3,6 +3,7 @@ import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as reportsService from "@/services/reports/reports.service";
 import { inventoryReportQuerySchema } from "@/validators/reports/reports.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "WAREHOUSE"], async (request: AuthenticatedRequest) => {
@@ -21,8 +22,7 @@ export const GET = withAuth(
       const data = await reportsService.getInventoryReport(parseResult.data);
       return NextResponse.json({ success: true, data });
     } catch (error: any) {
-      console.error("GET /api/reports/inventory error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/reports/inventory");
     }
   })
 );

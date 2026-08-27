@@ -3,6 +3,7 @@ import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as accountsService from "@/services/accounts/accounts.service";
 import { createAccountSchema } from "@/validators/accounts/accounts.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export const POST = withAuth(
   withRoles(["ADMIN", "ACCOUNTS"], async (request: AuthenticatedRequest) => {
@@ -24,11 +25,7 @@ export const POST = withAuth(
 
       return NextResponse.json({ success: true, account }, { status: 201 });
     } catch (error: any) {
-      console.error("POST /api/accounts error:", error);
-      if (error.message.includes("already exists")) {
-        return NextResponse.json({ error: error.message }, { status: 409 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "POST /api/accounts");
     }
   })
 );
@@ -39,8 +36,7 @@ export const GET = withAuth(
       const accounts = await accountsService.listAccounts();
       return NextResponse.json({ success: true, accounts });
     } catch (error: any) {
-      console.error("GET /api/accounts error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/accounts");
     }
   })
 );

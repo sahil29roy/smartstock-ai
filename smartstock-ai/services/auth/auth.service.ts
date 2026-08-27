@@ -1,7 +1,8 @@
 import { comparePassword } from "@/lib/password";
 import { signToken, verifyToken as jwtVerifyToken } from "@/lib/jwt";
-import { getUserByEmail } from "./auth.repository";
-import { JWTPayload, AuthSession } from "@/types/auth/auth.types";
+import { getUserByEmail, getUserById as repoGetUserById } from "./auth.repository";
+import { JWTPayload, AuthSession, User } from "@/types/auth/auth.types";
+
 
 
 
@@ -38,3 +39,8 @@ export async function login(email: string, passwordPlain: string): Promise<AuthS
 export function verifyToken(token: string): JWTPayload | null {
   return jwtVerifyToken<JWTPayload>(token);
 }
+
+export async function getUserById(id: string): Promise<User | null> {
+  return repoGetUserById(id);
+}
+

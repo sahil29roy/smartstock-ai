@@ -22,6 +22,13 @@ export const createStockMovementSchema = z.object({
   reason: z.string().max(500, "Reason must be 500 characters or less").nullable().optional(),
 });
 
+export const adjustInventoryApiSchema = z.object({
+  location: z.string().max(100, "Location must be 100 characters or less").nullable().optional(),
+  reserved_change: z.number().int("reserved_change must be an integer").optional(),
+});
+
 export type CreateInventoryInput = z.infer<typeof createInventorySchema>;
 export type UpdateInventoryInput = z.infer<typeof updateInventorySchema>;
 export type CreateStockMovementInput = z.infer<typeof createStockMovementSchema>;
+export type AdjustInventoryApiInput = z.infer<typeof adjustInventoryApiSchema>;
+

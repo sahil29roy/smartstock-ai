@@ -3,6 +3,7 @@ import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as salesService from "@/services/sales/sales.service";
 import { updateSaleSchema } from "@/validators/sales/sales.validator";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "SALES", "ACCOUNTS"], async (request: AuthenticatedRequest, context: any) => {
@@ -17,8 +18,7 @@ export const GET = withAuth(
 
       return NextResponse.json({ success: true, sale });
     } catch (error: any) {
-      console.error("GET /api/sales/:saleId error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/sales/:saleId");
     }
   })
 );
@@ -46,14 +46,7 @@ export const PATCH = withAuth(
       const updatedSale = await salesService.updateSaleStatus(saleId, status);
       return NextResponse.json({ success: true, sale: updatedSale });
     } catch (error: any) {
-      console.error("PATCH /api/sales/:saleId error:", error);
-      if (
-        error.message.includes("Insufficient stock") ||
-        error.message.includes("not found")
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "PATCH /api/sales/:saleId");
     }
   })
 );

@@ -4,6 +4,7 @@ import { withRoles } from "@/middleware/authorize";
 import * as salesService from "@/services/sales/sales.service";
 import { createSaleSchema } from "@/validators/sales/sales.validator";
 import { z } from "zod";
+import { handleRouteError } from "@/lib/errors";
 
 const createSaleBodySchema = createSaleSchema.extend({
   items: z.array(
@@ -38,15 +39,7 @@ export const POST = withAuth(
 
       return NextResponse.json({ success: true, sale }, { status: 201 });
     } catch (error: any) {
-      console.error("POST /api/sales error:", error);
-      if (
-        error.message.includes("Insufficient stock") ||
-        error.message.includes("not found") ||
-        error.message.includes("inactive")
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "POST /api/sales");
     }
   })
 );
@@ -61,8 +54,7 @@ export const GET = withAuth(
       const sales = await salesService.getSales({ customerId, status });
       return NextResponse.json({ success: true, sales });
     } catch (error: any) {
-      console.error("GET /api/sales error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/sales");
     }
   })
 );

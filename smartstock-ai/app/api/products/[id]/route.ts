@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as productService from "@/services/product/product.service";
+import { handleRouteError } from "@/lib/errors";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -22,8 +23,7 @@ export const GET = withAuth(
 
       return NextResponse.json({ success: true, product });
     } catch (error: any) {
-      console.error("GET /api/products/:id error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/products/:id");
     }
   })
 );
@@ -53,26 +53,7 @@ export const PATCH = withAuth(
       const product = await productService.updateProduct(id, body);
       return NextResponse.json({ success: true, product });
     } catch (error: any) {
-      console.error("PATCH /api/products/:id error:", error);
-      if (error.name === "ZodError") {
-        return NextResponse.json(
-          { error: "Validation failed", details: error.format() },
-          { status: 400 }
-        );
-      }
-      if (error.message.includes("not found")) {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      if (
-        error.message.includes("already exists") ||
-        error.message.includes("Category not found") ||
-        error.message.includes("deleted") ||
-        error.message.includes("Price") ||
-        error.message.includes("Minimum stock")
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 400 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "PATCH /api/products/:id");
     }
   })
 );
@@ -94,11 +75,7 @@ export const DELETE = withAuth(
 
       return NextResponse.json({ success: true, message: "Product soft-deleted successfully" });
     } catch (error: any) {
-      console.error("DELETE /api/products/:id error:", error);
-      if (error.message.includes("not found")) {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "DELETE /api/products/:id");
     }
   })
 );

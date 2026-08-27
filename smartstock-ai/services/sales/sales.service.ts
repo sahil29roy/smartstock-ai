@@ -25,6 +25,9 @@ export async function createSale(
     throw new Error("A sale must contain at least one item.");
   }
 
+  // Sort items by product_id to prevent deadlocks in transactions
+  items.sort((a, b) => a.product_id.localeCompare(b.product_id));
+
   return repo.withTransaction(async (client) => {
     // 1. Verify customer exists
     const customerCheck = await client.query(
@@ -140,6 +143,9 @@ export async function updateSaleStatus(saleId: string, status: SaleStatus): Prom
     }
 
     const items = await repo.getSaleItems(saleId, client);
+    // Sort items by product_id to prevent deadlocks in transactions
+    items.sort((a, b) => a.product_id.localeCompare(b.product_id));
+
 
     // Handle inventory reservation adjustments based on state transitions
     if (sale.status !== "CANCELLED" && status === "CANCELLED") {
@@ -255,6 +261,9 @@ export async function createChallan(
   if (items.length === 0) {
     throw new Error("A delivery challan must contain at least one item.");
   }
+
+  // Sort items by product_id to prevent deadlocks in transactions
+  items.sort((a, b) => a.product_id.localeCompare(b.product_id));
 
   return repo.withTransaction(async (client) => {
     // 1. Verify Sale exists

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withAuth, AuthenticatedRequest } from "@/middleware/authenticate";
 import { withRoles } from "@/middleware/authorize";
 import * as paymentService from "@/services/payment/payment.service";
+import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
   withRoles(["ADMIN", "ACCOUNTS"], async (request: AuthenticatedRequest, context: any) => {
@@ -16,8 +17,7 @@ export const GET = withAuth(
 
       return NextResponse.json({ success: true, payment });
     } catch (error: any) {
-      console.error("GET /api/payments/:id error:", error);
-      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+      return handleRouteError(error, "GET /api/payments/:id");
     }
   })
 );
