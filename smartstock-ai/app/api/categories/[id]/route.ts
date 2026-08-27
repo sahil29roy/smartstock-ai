@@ -6,7 +6,7 @@ import { updateCategorySchema } from "@/validators/category/category.validator";
 import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
-  withRoles(["ADMIN", "WAREHOUSE", "SALES", "ACCOUNTS"], async (request: AuthenticatedRequest, context: any) => {
+  withRoles(["ADMIN", "WAREHOUSE", "SALES", "ACCOUNTS", "MANAGER"], async (request: AuthenticatedRequest, context: any) => {
     try {
       const params = await context.params;
       const { id } = params;
@@ -20,12 +20,23 @@ export const GET = withAuth(
 );
 
 export const PATCH = withAuth(
-  withRoles(["ADMIN", "WAREHOUSE"], async (request: AuthenticatedRequest, context: any) => {
+  withRoles(["ADMIN", "WAREHOUSE", "MANAGER"], async (request: AuthenticatedRequest, context: any) => {
     try {
       const params = await context.params;
       const { id } = params;
 
       const body = await request.json();
+
+      // Check if this is a restore action
+      if (body.action === "restore") {
+        const restored = await categoryService.restoreCategory(id);
+        if (!restored) {
+          return NextResponse.json({ error: "Failed to restore category" }, { status: 400 });
+        }
+        const category = await categoryService.getCategoryById(id);
+        return NextResponse.json({ success: true, category, message: "Category restored successfully" });
+      }
+
       const parsed = updateCategorySchema.safeParse(body);
       if (!parsed.success) {
         return NextResponse.json(
@@ -43,7 +54,7 @@ export const PATCH = withAuth(
 );
 
 export const DELETE = withAuth(
-  withRoles(["ADMIN", "WAREHOUSE"], async (request: AuthenticatedRequest, context: any) => {
+  withRoles(["ADMIN", "WAREHOUSE", "MANAGER"], async (request: AuthenticatedRequest, context: any) => {
     try {
       const params = await context.params;
       const { id } = params;
