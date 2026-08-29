@@ -53,23 +53,23 @@ export function getFilteredNavItems(role: string | undefined): NavItem[] {
       return navItems;
     case "SALES":
       return navItems.filter(item => 
-        ["Dashboard", "Customers", "Sales", "Challans", "Payments", "Inventory"].includes(item.label)
+        ["Dashboard", "Customers", "Sales", "Challans", "Payments", "Inventory", "Reports", "Settings"].includes(item.label)
       );
     case "WAREHOUSE":
       return navItems.filter(item => 
-        ["Dashboard", "Products", "Categories", "Inventory", "Challans", "Procurement"].includes(item.label)
+        ["Dashboard", "Products", "Categories", "Inventory", "Challans", "Procurement", "Reports", "Settings"].includes(item.label)
       );
     case "MANAGER":
       return navItems.filter(item => 
-        ["Dashboard", "Products", "Categories", "Inventory", "Sales", "Procurement", "Accounts", "Reports"].includes(item.label)
+        ["Dashboard", "Products", "Categories", "Inventory", "Sales", "Procurement", "Accounts", "Reports", "Settings"].includes(item.label)
       );
     case "ACCOUNTS":
       return navItems.filter(item => 
-        ["Dashboard", "Inventory", "Payments", "Accounts", "Reports"].includes(item.label)
+        ["Dashboard", "Inventory", "Payments", "Accounts", "Reports", "Settings"].includes(item.label)
       );
     default:
       // USER or any undefined role gets fallback dashboard only
-      return navItems.filter(item => ["Dashboard"].includes(item.label));
+      return navItems.filter(item => ["Dashboard", "Settings"].includes(item.label));
   }
 }
 
