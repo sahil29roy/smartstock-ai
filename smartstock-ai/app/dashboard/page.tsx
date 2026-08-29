@@ -52,10 +52,10 @@ export default function DashboardPage() {
     }
   }, []);
 
-  const handleDateChange = (start?: string, end?: string) => {
+  const handleDateChange = useCallback((start?: string, end?: string) => {
     setDates({ startDate: start, endDate: end });
     fetchDashboardData(start, end);
-  };
+  }, [fetchDashboardData]);
 
   const handleRetry = () => {
     fetchDashboardData(dates.startDate, dates.endDate);
