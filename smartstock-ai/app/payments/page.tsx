@@ -548,7 +548,7 @@ export default function PaymentsPage() {
                   >
                     <option value="">-- Choose Purchase Order --</option>
                     {purchases
-                      .filter((p) => p.status !== "COMPLETED")
+                      .filter((p) => p.status !== "CANCELLED" && p.status !== "DRAFT")
                       .map((po) => (
                         <option key={po.id} value={po.id}>
                           PO ID: {po.id.substring(0, 8)}... - ₹{Number(po.total_amount).toLocaleString("en-IN")} ({po.status})
