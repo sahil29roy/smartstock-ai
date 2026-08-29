@@ -21,6 +21,7 @@ import {
   Warehouse,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 
 export interface NavItem {
@@ -31,6 +32,7 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Ask AI", href: "/ai", icon: Sparkles },
   { label: "Products", href: "/products", icon: Package },
   { label: "Categories", href: "/categories", icon: Tags },
   { label: "Inventory", href: "/inventory", icon: Boxes },
@@ -53,23 +55,23 @@ export function getFilteredNavItems(role: string | undefined): NavItem[] {
       return navItems;
     case "SALES":
       return navItems.filter(item => 
-        ["Dashboard", "Customers", "Sales", "Challans", "Payments", "Inventory", "Reports", "Settings"].includes(item.label)
+        ["Dashboard", "Ask AI", "Customers", "Sales", "Challans", "Payments", "Inventory", "Reports", "Settings"].includes(item.label)
       );
     case "WAREHOUSE":
       return navItems.filter(item => 
-        ["Dashboard", "Products", "Categories", "Inventory", "Challans", "Procurement", "Reports", "Settings"].includes(item.label)
+        ["Dashboard", "Ask AI", "Products", "Categories", "Inventory", "Challans", "Procurement", "Reports", "Settings"].includes(item.label)
       );
     case "MANAGER":
       return navItems.filter(item => 
-        ["Dashboard", "Products", "Categories", "Inventory", "Sales", "Procurement", "Accounts", "Reports", "Settings"].includes(item.label)
+        ["Dashboard", "Ask AI", "Products", "Categories", "Inventory", "Sales", "Procurement", "Accounts", "Reports", "Settings"].includes(item.label)
       );
     case "ACCOUNTS":
       return navItems.filter(item => 
-        ["Dashboard", "Inventory", "Payments", "Accounts", "Reports", "Settings"].includes(item.label)
+        ["Dashboard", "Ask AI", "Inventory", "Payments", "Accounts", "Reports", "Settings"].includes(item.label)
       );
     default:
       // USER or any undefined role gets fallback dashboard only
-      return navItems.filter(item => ["Dashboard", "Settings"].includes(item.label));
+      return navItems.filter(item => ["Dashboard", "Ask AI", "Settings"].includes(item.label));
   }
 }
 

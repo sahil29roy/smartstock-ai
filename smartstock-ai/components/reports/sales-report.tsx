@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import {
   TableContainer,
@@ -11,7 +11,10 @@ import {
 } from "@/components/ui/table";
 import { ReportSummary } from "./report-summary";
 import { SalesReportResult, SalesTrendPoint } from "@/types/reports/reports.types";
-import { TrendingUp, ShoppingBag, CreditCard, Tag } from "lucide-react";
+import { TrendingUp, ShoppingBag, CreditCard, Tag, Sparkles, RefreshCw, AlertTriangle, Lightbulb } from "lucide-react";
+import { aiClient } from "@/lib/api/ai.client";
+import { SalesAnalysisSkeleton } from "../ai/ai-loading";
+import { AIError } from "../ai/ai-error";
 
 interface SalesReportProps {
   data: SalesReportResult;
@@ -36,6 +39,37 @@ const formatDate = (dateStr: string) => {
 };
 
 export const SalesReport = ({ data }: SalesReportProps) => {
+  const [aiInsights, setAiInsights] = useState<{
+    summary: string;
+    observations: string[];
+    trends: string[];
+    recommendations: string[];
+  } | null>(null);
+  const [loadingAi, setLoadingAi] = useState<boolean>(true);
+  const [errorAi, setErrorAi] = useState<string | null>(null);
+
+  const fetchAiInsights = async () => {
+    setLoadingAi(true);
+    setErrorAi(null);
+    try {
+      const res = await aiClient.getSalesInsights();
+      if (res.success && res.insights) {
+        setAiInsights(res.insights);
+      } else {
+        setErrorAi("Failed to load Sales AI insights.");
+      }
+    } catch (err: any) {
+      console.error("AI sales report load error:", err);
+      setErrorAi(err?.message || "AI sales assistant is offline.");
+    } finally {
+      setLoadingAi(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAiInsights();
+  }, []);
+
   const [hoveredPoint, setHoveredPoint] = useState<{
     point: SalesTrendPoint;
     x: number;
@@ -341,6 +375,92 @@ export const SalesReport = ({ data }: SalesReportProps) => {
             )}
           </CardContent>
         </Card>
+        {/* Sales AI Analysis block */}
+        <div className="col-span-full mt-2">
+          {loadingAi ? (
+            <SalesAnalysisSkeleton />
+          ) : errorAi ? (
+            <AIError message={errorAi} onRetry={fetchAiInsights} />
+          ) : aiInsights ? (
+            <Card className="border border-primary-light/20 bg-gradient-to-br from-primary-very-light/20 to-transparent relative overflow-hidden group">
+              <div className="absolute -right-16 -top-16 w-36 h-36 bg-primary/5 rounded-full filter blur-xl group-hover:scale-110 transition-transform duration-500" />
+              
+              <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-primary-light/10">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-md bg-primary-very-light dark:bg-primary-light/15 text-primary flex items-center justify-center border border-primary-light/10">
+                    <Sparkles className="h-4 w-4 animate-pulse" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-sm font-bold text-foreground">AI Sales Analytics & Trends</CardTitle>
+                    <CardDescription className="text-[10px]">AI-generated performance synthesis and recommendations</CardDescription>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 w-7 p-0 border-primary-light/20 text-secondary-text hover:text-foreground bg-transparent"
+                  onClick={fetchAiInsights}
+                  title="Recalculate insights"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                </Button>
+              </CardHeader>
+
+              <CardContent className="pt-4 space-y-4 text-xs">
+                <p className="text-foreground font-medium leading-relaxed bg-surface/40 p-3 rounded-lg border border-primary-light/5">
+                  {aiInsights.summary}
+                </p>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 font-bold text-primary">
+                      <TrendingUp className="h-3.5 w-3.5" />
+                      <span>Sales Observations</span>
+                    </div>
+                    <ul className="space-y-1.5 text-secondary-text">
+                      {aiInsights.observations.map((obs, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                          <span className="leading-snug">{obs}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 font-bold text-warning-dark dark:text-warning/80">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      <span>Identified Trends</span>
+                    </div>
+                    <ul className="space-y-1.5 text-secondary-text">
+                      {aiInsights.trends.map((t, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-warning mt-1.5 shrink-0" />
+                          <span className="leading-snug">{t}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1.5 font-bold text-success">
+                      <Lightbulb className="h-3.5 w-3.5 text-success" />
+                      <span>AI Recommendations</span>
+                    </div>
+                    <ul className="space-y-1.5 text-secondary-text">
+                      {aiInsights.recommendations.map((rec, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-success mt-1.5 shrink-0" />
+                          <span className="leading-snug">{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
       </div>
     </div>
   );
