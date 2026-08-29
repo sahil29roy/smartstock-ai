@@ -136,7 +136,7 @@ export async function getStockMovements(productId?: string): Promise<StockMoveme
 export async function getAllInventory(client?: PoolClient): Promise<InventoryWithProduct[]> {
   const sql = `
     SELECT
-      COALESCE(i.id, '') as id,
+      COALESCE(i.id::text, '') as id,
       p.id as product_id,
       COALESCE(i.quantity, 0)::INT as quantity,
       COALESCE(i.reserved_quantity, 0)::INT as reserved_quantity,

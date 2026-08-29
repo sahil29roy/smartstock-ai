@@ -5,7 +5,7 @@ import * as paymentService from "@/services/payment/payment.service";
 import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
-  withRoles(["ADMIN", "ACCOUNTS"], async (request: AuthenticatedRequest, context: any) => {
+  withRoles(["ADMIN", "SALES", "ACCOUNTS"], async (request: AuthenticatedRequest, context: any) => {
     try {
       const params = await context.params;
       const { id } = params;

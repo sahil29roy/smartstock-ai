@@ -42,7 +42,7 @@ export const POST = withAuth(
 );
 
 export const GET = withAuth(
-  withRoles(["ADMIN", "ACCOUNTS"], async (request: AuthenticatedRequest) => {
+  withRoles(["ADMIN", "SALES", "ACCOUNTS"], async (request: AuthenticatedRequest) => {
     try {
       const { searchParams } = new URL(request.url);
       const saleId = searchParams.get("saleId") || undefined;
