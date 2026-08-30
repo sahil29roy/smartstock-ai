@@ -18,6 +18,7 @@ import { InventoryFilters } from "@/components/inventory/inventory-filters";
 import { InventoryTable } from "@/components/inventory/inventory-table";
 import { InventoryAdjustDialog } from "@/components/inventory/inventory-adjust-dialog";
 import { Inbox } from "lucide-react";
+import { aiClient } from "@/lib/api/ai.client";
 
 export default function InventoryPage() {
   const { user } = useAuth();
@@ -26,6 +27,7 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [aiInsights, setAiInsights] = useState<any>(null);
 
   // Filter states
   const [search, setSearch] = useState<string>("");
@@ -52,6 +54,18 @@ export default function InventoryPage() {
     }
   }, []);
 
+  const fetchAiInsights = useCallback(async () => {
+    if (!user?.role || !["ADMIN", "MANAGER", "WAREHOUSE"].includes(user.role)) return;
+    try {
+      const res = await aiClient.getInventoryInsights();
+      if (res.success && res.insights) {
+        setAiInsights(res.insights.products);
+      }
+    } catch (err) {
+      console.error("Failed to load inventory AI insights:", err);
+    }
+  }, [user?.role]);
+
   // Fetch inventory
   const fetchInventory = useCallback(async (isRefresh = false) => {
     if (isRefresh) {
@@ -64,6 +78,7 @@ export default function InventoryPage() {
       const response = await inventoryClient.getInventory();
       if (response.success) {
         setInventory(response.inventory);
+        fetchAiInsights();
       } else {
         setError("Failed to fetch inventory records.");
       }
@@ -76,7 +91,7 @@ export default function InventoryPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [fetchAiInsights]);
 
   // Initial load
   useEffect(() => {
@@ -195,6 +210,7 @@ export default function InventoryPage() {
                   onPageChange={setCurrentPage}
                   totalItems={totalItems}
                   itemsPerPage={itemsPerPage}
+                  aiInsights={aiInsights}
                 />
               )}
             </>

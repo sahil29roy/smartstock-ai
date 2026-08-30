@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageContainer } from "@/components/layout/page-container";
 import { ProtectedRoute } from "@/components/auth/protected-route";
@@ -14,6 +14,7 @@ import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { dashboardClient } from "@/lib/dashboard.client";
 import { DashboardSummaryResult } from "@/types/reports/reports.types";
+import { AiSummary } from "@/components/ai/ai-summary";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -61,9 +62,10 @@ export default function DashboardPage() {
     fetchDashboardData(dates.startDate, dates.endDate);
   };
 
-  // Prevent loading twice on initial mount if dates changes trigger it.
-  // The DashboardHeader triggers date calculations on mount which triggers onDateChange.
-  // So we let DashboardHeader trigger the initial load via handleDateChange.
+  // Initial load on mount
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   return (
     <ProtectedRoute>
@@ -85,6 +87,9 @@ export default function DashboardPage() {
             <div className="mt-6 space-y-6">
               {/* KPI cards section */}
               <KpiSection kpis={data.kpis} />
+
+              {/* AI Business Summary section */}
+              {["ADMIN", "MANAGER"].includes(role) && <AiSummary />}
 
               {/* Sales Chart section */}
               {showChart && <SalesOverview salesTrend={data.salesTrend} />}
