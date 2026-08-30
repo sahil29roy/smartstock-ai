@@ -50,7 +50,7 @@ export const AiSummary = () => {
             <Sparkles className="h-4 w-4 animate-pulse" />
           </div>
           <div>
-            <CardTitle className="text-sm font-bold text-foreground">Ask AI — SmartStock Business Summary</CardTitle>
+            <CardTitle className="text-sm font-bold text-foreground">SmartStock AI Business Summary</CardTitle>
             <CardDescription className="text-[10px]">Real-time AI operational insights and alerts</CardDescription>
           </div>
         </div>

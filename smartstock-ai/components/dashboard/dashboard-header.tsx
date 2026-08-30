@@ -52,10 +52,7 @@ export const DashboardHeader = ({ onDateChange }: DashboardHeaderProps) => {
     }
   }, [onDateChange]);
 
-  // Trigger initial change on mount
-  useEffect(() => {
-    calculateDates(preset);
-  }, [calculateDates, preset]);
+
 
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value as DatePreset;

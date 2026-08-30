@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageContainer } from "@/components/layout/page-container";
 import { ProtectedRoute } from "@/components/auth/protected-route";
@@ -62,9 +62,10 @@ export default function DashboardPage() {
     fetchDashboardData(dates.startDate, dates.endDate);
   };
 
-  // Prevent loading twice on initial mount if dates changes trigger it.
-  // The DashboardHeader triggers date calculations on mount which triggers onDateChange.
-  // So we let DashboardHeader trigger the initial load via handleDateChange.
+  // Initial load on mount
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   return (
     <ProtectedRoute>

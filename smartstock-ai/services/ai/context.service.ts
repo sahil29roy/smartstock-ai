@@ -213,10 +213,25 @@ export async function getAskContext(role: UserRole, question: string) {
   }
   // Standard 'USER' gets no domains (empty context)
 
+  // Find all domains this role is allowed to access
+  const rolePermittedDomains: AIDomain[] = [];
+  if (role === "ADMIN") {
+    rolePermittedDomains.push("sales", "inventory", "procurement", "finance", "customers");
+  } else if (role === "MANAGER") {
+    rolePermittedDomains.push("sales", "inventory", "procurement", "customers");
+  } else if (role === "SALES") {
+    rolePermittedDomains.push("sales", "customers");
+  } else if (role === "WAREHOUSE") {
+    rolePermittedDomains.push("inventory", "procurement");
+  } else if (role === "ACCOUNTS") {
+    rolePermittedDomains.push("finance");
+  }
+
   // 3. Assemble filtered context
   const context: Record<string, any> = {
     userRole: role,
-    accessibleDomains: permittedDomains,
+    accessibleDomains: rolePermittedDomains,
+    fetchedDomainsForQuery: permittedDomains,
   };
 
   if (permittedDomains.includes("sales")) {
