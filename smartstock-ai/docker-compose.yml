@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  smartstock:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: smartstock-ai:latest
+    container_name: smartstock-app
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # Override the host DATABASE_URL to use the internal docker network hostname "postgres"
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-neondb_owner}:${POSTGRES_PASSWORD:-npg_oKdcSfVG4g2J}@postgres:5432/${POSTGRES_DB:-neondb}?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: smartstock-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-neondb_owner}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-npg_oKdcSfVG4g2J}
+      - POSTGRES_DB=${POSTGRES_DB:-neondb}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Mount migrations for automatic database setup on database initialization (first run)
+      - ./db/migrations:/docker-entrypoint-initdb.d
+      # Mount seeds to a read-only directory inside the container for manual seeding
+      - ./db/seeds:/docker-entrypoint-seeds:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    restart: always
+
+volumes:
+  postgres_data:

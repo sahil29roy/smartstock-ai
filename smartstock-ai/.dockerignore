@@ -1,0 +1,49 @@
+# Dependencies
+node_modules
+.pnpm-store
+.yarn
+.yarn-cache
+
+# Next.js build assets
+.next
+out
+.turbo
+
+# Environment secrets (DO NOT bake these into build context)
+.env
+.env.*
+!.env.example
+
+# Git metadata
+.git
+.gitignore
+.gitattributes
+
+# Docker configurations
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Testing outputs
+coverage
+.nyc_output
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# System & Editor configs
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Temporary files
+tmp
+temp
+.cache
+
+# Development documents
+README.md
