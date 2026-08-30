@@ -8,7 +8,7 @@ export const GET = withAuth(
   withRoles(["ADMIN", "MANAGER", "SALES"], async (request: AuthenticatedRequest) => {
     try {
       const role = request.user.role;
-      const userId = request.user.userId;
+      const userId = request.user.id;
       const data = await aiService.generateSalesInsights(role, userId);
 
       return NextResponse.json({ success: true, insights: data });

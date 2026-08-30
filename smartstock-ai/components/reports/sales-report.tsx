@@ -15,6 +15,7 @@ import { TrendingUp, ShoppingBag, CreditCard, Tag, Sparkles, RefreshCw, AlertTri
 import { aiClient } from "@/lib/api/ai.client";
 import { SalesAnalysisSkeleton } from "../ai/ai-loading";
 import { AIError } from "../ai/ai-error";
+import { Button } from "../ui/button";
 
 interface SalesReportProps {
   data: SalesReportResult;

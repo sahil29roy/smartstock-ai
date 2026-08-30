@@ -8,7 +8,7 @@ export const GET = withAuth(
   withRoles(["ADMIN", "MANAGER"], async (request: AuthenticatedRequest) => {
     try {
       const role = request.user.role;
-      const userId = request.user.userId;
+      const userId = request.user.id;
       const data = await aiService.generateBusinessSummary(role, userId);
 
       return NextResponse.json({ success: true, summary: data });

@@ -27,7 +27,7 @@ export const POST = withAuth(
       }
 
       const role = request.user.role;
-      const userId = request.user.userId;
+      const userId = request.user.id;
       const data = await aiService.askSmartStock(role, userId, parseResult.data.question);
 
       return NextResponse.json({ success: true, response: data });

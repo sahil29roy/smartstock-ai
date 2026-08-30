@@ -62,7 +62,7 @@ export async function getInventoryContext(role: UserRole) {
     throw new Error("Unauthorized to access inventory context.");
   }
 
-  const invReport = await reportsService.getInventoryReport({});
+  const invReport = await reportsService.getInventoryReport({ status: "all" });
   const allInv = await inventoryService.getAllInventory();
 
   return {
@@ -107,7 +107,7 @@ export async function getSalesContext(role: UserRole) {
     throw new Error("Unauthorized to access sales context.");
   }
 
-  const salesReport = await reportsService.getSalesReport({});
+  const salesReport = await reportsService.getSalesReport({ groupBy: "day" });
 
   return {
     totalSales: salesReport.totalSales,
@@ -221,7 +221,7 @@ export async function getAskContext(role: UserRole, question: string) {
 
   if (permittedDomains.includes("sales")) {
     try {
-      const salesData = await reportsService.getSalesReport({});
+      const salesData = await reportsService.getSalesReport({ groupBy: "day" });
       context.sales = {
         totalSales: salesData.totalSales,
         totalOrders: salesData.totalOrders,
@@ -236,7 +236,7 @@ export async function getAskContext(role: UserRole, question: string) {
 
   if (permittedDomains.includes("inventory")) {
     try {
-      const invData = await reportsService.getInventoryReport({});
+      const invData = await reportsService.getInventoryReport({ status: "all" });
       context.inventory = {
         totalItems: invData.totalItems,
         totalValue: invData.totalValue,
@@ -283,7 +283,7 @@ export async function getAskContext(role: UserRole, question: string) {
 
   if (permittedDomains.includes("customers")) {
     try {
-      const custData = await reportsService.getCustomerReport({});
+      const custData = await reportsService.getCustomerReport({ limit: 10 });
       context.customers = custData.slice(0, 5).map((c) => ({
         customerName: c.customerName,
         totalSales: c.totalSales,

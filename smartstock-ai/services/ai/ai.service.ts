@@ -121,7 +121,7 @@ export async function askSmartStock(role: UserRole, userId: string, question: st
   // Validate request parameter
   const validation = validators.askAIRequestSchema.safeParse({ question });
   if (!validation.success) {
-    throw new Error(validation.error.errors[0]?.message || "Invalid question");
+    throw new Error(validation.error.issues[0]?.message || "Invalid question");
   }
 
   const startTime = Date.now();

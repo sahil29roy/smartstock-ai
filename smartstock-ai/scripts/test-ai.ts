@@ -83,63 +83,10 @@ async function setup() {
   console.log("Setup complete.");
 }
 
-// Intercept generateContent in lib/ai/gemini.ts if no API Key exists to allow safe testing
 function setupMockGemini() {
   if (!process.env.GEMINI_API_KEY) {
-    console.log("\n[!] GEMINI_API_KEY is not set. Using MOCK responders for AI service verification.");
-
-    const mockGenerateContent = async (prompt: string, options: any = {}) => {
-      // Determine what structure to return based on prompt content
-      if (prompt.includes("BUSINESS_SUMMARY_PROMPT") || prompt.includes("Analyze the provided SmartStock dashboard")) {
-        return JSON.stringify({
-          summary: "SmartStock is operating normally with high revenue growth.",
-          keyInsights: ["Top revenue is driven by AI Test Category.", "Low stock alerts are triggered."],
-          risks: ["Low stock for SKU AI-TEST-SKU-777."],
-          recommendations: ["Order more AI Test Product immediately."],
-        });
-      }
-      
-      if (prompt.includes("INVENTORY_ANALYSIS_PROMPT") || prompt.includes("Analyze the provided SmartStock inventory")) {
-        const prodId = testProductId || "test-uuid";
-        return JSON.stringify({
-          overallSummary: "Critical inventory status: 1 product is low on stock.",
-          alertsCount: 1,
-          products: {
-            [prodId]: {
-              riskLevel: "HIGH",
-              summary: "Stock level is 2, which is below the minimum required 5.",
-              reasons: ["High demand", "No recent procurements"],
-              recommendations: ["Reorder 10 units from Supplier A."],
-            },
-          },
-        });
-      }
-
-      if (prompt.includes("SALES_ANALYSIS_PROMPT") || prompt.includes("Analyze the provided SmartStock sales")) {
-        return JSON.stringify({
-          summary: "Sales performance is steady.",
-          observations: ["Observation 1", "Observation 2"],
-          trends: ["Trend 1", "Trend 2"],
-          recommendations: ["Recommendation 1", "Recommendation 2"],
-        });
-      }
-
-      if (prompt.includes("ASK_AI_PROMPT") || prompt.includes("Answer the user's question")) {
-        return JSON.stringify({
-          answer: "The AI Test Product (SKU: AI-TEST-SKU-777) currently has 2 units in stock, which is below the minimum threshold of 5.",
-          sources: ["Inventory"],
-          limitations: ["No financial ledger access for current role"],
-        });
-      }
-
-      throw new Error(`Mock failed: prompt was not recognized. Prompt: ${prompt.slice(0, 100)}`);
-    };
-
-    Object.defineProperty(gemini, "generateContent", {
-      value: mockGenerateContent,
-      configurable: true,
-      writable: true,
-    });
+    console.log("\n[!] GEMINI_API_KEY is not set. Setting AI_MOCK=true for offline mock mode.");
+    process.env.AI_MOCK = "true";
   } else {
     console.log("\n[+] GEMINI_API_KEY detected. Running REAL API integration calls.");
   }
