@@ -92,42 +92,40 @@ export const RecentActivity = ({ activity }: RecentActivityProps) => {
   }
 
   return (
-    <Card className="h-[320px] flex flex-col justify-between">
-      <div>
-        <CardHeader className="pb-1">
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Real-time log of business operations</CardDescription>
-        </CardHeader>
-        
-        <CardContent className="p-0 border-t border-border mt-2">
-          <div className="overflow-y-auto max-h-[250px] p-4 pt-2 space-y-3 scrollbar-thin">
-            {displayedActivity.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between gap-3 py-1 border-b border-border/40 last:border-b-0"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  {getIcon(item.type)}
-                  <div className="min-w-0 flex flex-col">
-                    <span className="text-xs font-semibold text-foreground leading-normal truncate max-w-[180px] sm:max-w-[240px]">
-                      {item.description}
-                    </span>
-                    <span className="text-[10px] text-secondary-text font-mono mt-0.5">
-                      {formatActivityDate(item.date)}
-                    </span>
-                  </div>
-                </div>
-
-                {item.amount !== undefined && item.amount !== null && (
-                  <span className="text-xs font-bold text-foreground font-mono shrink-0">
-                    {formatCurrency(item.amount)}
+    <Card className="h-[320px] flex flex-col overflow-hidden">
+      <CardHeader className="pb-1 shrink-0">
+        <CardTitle>Recent Activity</CardTitle>
+        <CardDescription>Real-time log of business operations</CardDescription>
+      </CardHeader>
+      
+      <CardContent className="p-0 border-t border-border flex-1 min-h-0 mt-2">
+        <div className="overflow-y-auto h-full p-5 pt-2 space-y-3 scrollbar-thin">
+          {displayedActivity.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between gap-3 py-1 border-b border-border/40 last:border-b-0"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                {getIcon(item.type)}
+                <div className="min-w-0 flex flex-col">
+                  <span className="text-xs font-semibold text-foreground leading-normal truncate max-w-[180px] sm:max-w-[240px]">
+                    {item.description}
                   </span>
-                )}
+                  <span className="text-[10px] text-secondary-text font-mono mt-0.5">
+                    {formatActivityDate(item.date)}
+                  </span>
+                </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </div>
+
+              {item.amount !== undefined && item.amount !== null && (
+                <span className="text-xs font-bold text-foreground font-mono shrink-0">
+                  {formatCurrency(item.amount)}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </CardContent>
     </Card>
   );
 };

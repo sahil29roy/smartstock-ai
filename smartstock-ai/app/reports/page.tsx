@@ -93,9 +93,19 @@ export default function ReportsPage() {
 
   useEffect(() => {
     if (user?.role) {
-      loadReport();
+      // Ensure the user role is authorized to view the active tab before fetching
+      const allowedRoles: Record<ReportType, string[]> = {
+        sales: ["ADMIN", "MANAGER", "SALES", "ACCOUNTS"],
+        inventory: ["ADMIN", "MANAGER", "WAREHOUSE"],
+        finance: ["ADMIN", "MANAGER", "ACCOUNTS"],
+        customers: ["ADMIN", "MANAGER", "SALES"],
+      };
+
+      if (allowedRoles[activeTab]?.includes(user.role)) {
+        loadReport();
+      }
     }
-  }, [loadReport, user]);
+  }, [loadReport, user?.role, activeTab]);
 
   const handleApplyFilters = (newFilters: FilterParams) => {
     setFilters(newFilters);

@@ -7,6 +7,7 @@ import { ThemeToggle } from "../theme/theme-toggle";
 import { DropdownMenu } from "../ui/dropdown-menu";
 import { SearchInput } from "../common/search-input";
 import { useAuth } from "@/components/auth/auth-provider";
+import { NotificationDropdown } from "./notification-dropdown";
 
 interface TopbarProps {
   onMenuClick: () => void;
@@ -78,13 +79,7 @@ export const Topbar = ({ onMenuClick }: TopbarProps) => {
         <ThemeToggle />
 
         {/* Notifications */}
-        <button
-          className="text-secondary-text hover:text-foreground hover:bg-background p-2 rounded-md transition-colors relative cursor-pointer"
-          title="Notifications"
-        >
-          <Bell className="h-4.5 w-4.5" />
-          <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-danger ring-2 ring-surface" />
-        </button>
+        <NotificationDropdown />
 
         <div className="h-6 w-[1px] bg-border mx-1" />
 
