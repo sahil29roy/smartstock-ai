@@ -6,7 +6,7 @@ import { salesReportQuerySchema } from "@/validators/reports/reports.validator";
 import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
-  withRoles(["ADMIN", "SALES"], async (request: AuthenticatedRequest) => {
+  withRoles(["ADMIN", "SALES", "ACCOUNTS", "MANAGER"], async (request: AuthenticatedRequest) => {
     try {
       const { searchParams } = new URL(request.url);
       const queryParams = Object.fromEntries(searchParams.entries());

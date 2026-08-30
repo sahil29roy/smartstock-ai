@@ -78,6 +78,10 @@ export const SalesReport = ({ data }: SalesReportProps) => {
     index: number;
   } | null>(null);
 
+  if (!data || !data.salesByCategory || !data.salesOverTime) {
+    return null;
+  }
+
   const summaryCards = [
     {
       title: "Total Revenue",

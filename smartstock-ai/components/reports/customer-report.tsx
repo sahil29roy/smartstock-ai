@@ -40,6 +40,9 @@ const formatDate = (dateStr: any) => {
 };
 
 export const CustomerReport = ({ data }: CustomerReportProps) => {
+  if (!data || !Array.isArray(data)) {
+    return null;
+  }
   const totalCustomers = data.length;
   
   // Sort by revenue to find top spender

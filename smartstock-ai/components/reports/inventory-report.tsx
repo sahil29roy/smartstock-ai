@@ -41,6 +41,9 @@ const formatDate = (dateStr: any) => {
 };
 
 export const InventoryReport = ({ data }: InventoryReportProps) => {
+  if (!data || !data.lowStockDetails || !Array.isArray(data.lowStockDetails)) {
+    return null;
+  }
   const summaryCards = [
     {
       title: "Stock Valuation",

@@ -37,6 +37,7 @@ export default function ReportsPage() {
   // Set initial tab once user is loaded
   useEffect(() => {
     if (user?.role) {
+      setData(null);
       setActiveTab(getInitialTab(user.role));
     }
   }, [user]);
@@ -116,6 +117,7 @@ export default function ReportsPage() {
   };
 
   const handleTabChange = (tab: ReportType) => {
+    setData(null);
     setActiveTab(tab);
     setFilters({}); // Clear filters on tab switch for safety
   };

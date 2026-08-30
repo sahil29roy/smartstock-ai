@@ -26,6 +26,9 @@ const formatCurrency = (val: number) => {
 };
 
 export const FinanceReport = ({ data }: FinanceReportProps) => {
+  if (!data || !data.accountBalances || !Array.isArray(data.accountBalances)) {
+    return null;
+  }
   const activeBalance = data.accountBalances.reduce((sum, a) => sum + a.balance, 0);
 
   const summaryCards = [

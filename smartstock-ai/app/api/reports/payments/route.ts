@@ -6,7 +6,7 @@ import { financialReportQuerySchema } from "@/validators/reports/reports.validat
 import { handleRouteError } from "@/lib/errors";
 
 export const GET = withAuth(
-  withRoles(["ADMIN", "ACCOUNTS"], async (request: AuthenticatedRequest) => {
+  withRoles(["ADMIN", "ACCOUNTS", "MANAGER"], async (request: AuthenticatedRequest) => {
     try {
       const { searchParams } = new URL(request.url);
       const queryParams = Object.fromEntries(searchParams.entries());
